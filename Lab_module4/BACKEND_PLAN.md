@@ -66,7 +66,7 @@ backend/
 │   │   ├── answers.py        # Answer, Source, citation rules
 │   │   ├── evaluation.py     # EvalExample, RelevantTarget, ExampleResult, EvalReport
 │   │   ├── jobs.py           # Job (index | evaluate), JobStatus, progress
-│   │   ├── tracing.py        # Trace, Span (dataclasses)
+│   │   ├── tracing.py        # Trace, Span, PipelineDebug (dataclasses)
 │   │   ├── schemas.py        # Pydantic LLM output models (lenient + strict)
 │   │   ├── errors.py         # CodebaseNotFound, ReadOnlyCodebase, InputTooLarge, …
 │   │   └── ports.py          # LLMClient (+ Lab 3 types), Embedder, Reranker, VectorStore,
@@ -153,6 +153,7 @@ Lab 3 variables (`GOOGLE_API_KEY`, `GEMINI_MODEL=gemini-3.5-flash-lite`, `LLM_MO
 | `MAX_QUEUED_JOBS` | `5` | Index + evaluation jobs waiting. Beyond that: `503 busy` |
 | `SYNC_WAIT_TIMEOUT_S` | `180` | `?wait=true` |
 | `TRACE_RETENTION` | `500` | Stored traces |
+| `PIPELINE_DEBUG_ENABLED` | `true` | Allows `?debug=true` on `/query` and `/search` (§10.1) |
 | `LLM_DAILY_REQUEST_LIMIT` | `1000` | Shown in `/stats` as "requests left today" (informational; the circuit breaker is the real guard) |
 | `PRICE_INPUT_PER_M` / `PRICE_OUTPUT_PER_M` | `0.10` / `0.40` | "Paid-tier equivalent" cost in `/stats` (configurable, informational) |
 
@@ -397,7 +398,7 @@ Every hit carries all available scores and ranks, so the UI and traces can show 
 3. **Context builder:** chunks in rank order (most relevant first, against "lost in the middle"), numbered `[1]…[k]`. Each is rendered as a header line (`[n] codebase/path:start-end · symbol`) and a fenced code block with its language. Chunks are dropped from the end if `CONTEXT_BUDGET_TOKENS` would be exceeded (Lab 2 estimator).
 4. **LLM call** with the answer schema (below), `thinking_budget` low, and temperature from config.
 5. **Validate:** strict schema, then the citation rules. Every `[n]` in `answer` and every entry of `citations` must be in `1..k`, the two sets must be equal, and `found = true` requires ≥ 1 citation. A failure triggers **one repair call** with the specific errors. A second failure returns the answer with `grounded = false` and a trace warning rather than an error.
-6. **Trace** and return.
+6. **Trace** and return. The intermediate lists, the exact prompt and the raw model output are kept in a `PipelineDebug` and returned only with `?debug=true` (§10.1).
 
 **LLM output schema** (lenient twin sent to Gemini, strict model validated locally):
 
@@ -554,6 +555,30 @@ It writes `eval/results/grid.json` and a Markdown table for `EVALUATION.md`.
 
 **`traces` table:** `request_id, kind (query|search|index|evaluate), created_at, total_ms, mode, k, llm_calls, cached, input_tokens, output_tokens, found, grounded, spans_json`. Pruned to `TRACE_RETENTION`.
 
+### 10.1 Pipeline debug view (`?debug=true`)
+
+Shows each transformation of one question, from input to the exact prompt Gemini received. `POST /query?debug=true` and `POST /search?debug=true` add a `pipeline` object to the response. `/search` stops after `reranked`, since there is no prompt.
+
+| Stage | Field | Content |
+|---|---|---|
+| 1 · Input | `question` | The question as received (trimmed) |
+| 2 · Improvement | `query_rewrite` | `null` today: there is no rewrite step. Reserved for the optional query rewrite ([PLAN.md §5](PLAN.md#5-retrieval-and-generation-course-3)), which would put `{model, rewritten, cached}` here |
+| 3a · Query embedding | `query_embedding` | `{model, dims, cached, ms}` (no vector values: 384 numbers are not readable) |
+| 3b · ChromaDB | `vector_candidates` | All `RETRIEVAL_CANDIDATES` (20) hits in ChromaDB order: `{rank, chunk_id, codebase, path, symbol, start_line, end_line, distance, similarity}` |
+| 3c · BM25 | `bm25_candidates` | The 20 BM25 hits: `{rank, chunk_id, …, score, matched_terms}`. `matched_terms` = query tokens found in the chunk, which shows *why* a keyword hit matched |
+| 4a · Fusion | `rrf_merged` | The merged list: `{rank, chunk_id, …, rrf, vector_rank, bm25_rank}` (`null` rank = absent from that list) |
+| 4b · Rerank | `reranked` | The kept `k`: `{rank, chunk_id, …, rerank, rank_before}`, so the UI can show moves (`3 → 1`). `null` with `reason: "disabled"` or `"mode=hybrid"` when not run |
+| 5 · Prompt | `prompt` | `{system, user, prompt_version, est_tokens, chunks_sent, chunks_dropped}`: the **exact** text sent to Gemini, after `fill` and the context budget |
+| 6 · Model output | `llm` | `{raw_output, cached, input_tokens, output_tokens}`. With a repair: `attempts: [{raw_output, errors}, {repair_message, raw_output}]` |
+
+**Design:**
+- The Retriever and AnswerService always collect these intermediate lists in a `PipelineDebug` dataclass (`domain/tracing.py`). They already compute them, so collecting costs microseconds and no extra calls.
+- The API serializes `PipelineDebug` only when `debug=true`. Otherwise it is dropped.
+- A cached answer still shows the full prompt, because the prompt is rebuilt to compute the cache key.
+- **Never logged or stored.** `pipeline` contains the question and code, so it goes only into the HTTP response to the caller, who already has both (their own question, and code from an indexed codebase they can read through `/codebases/{id}/chunks`). The `traces` table and the JSON logs stay content-free (§10). Tests enforce this (Q4).
+- Config `PIPELINE_DEBUG_ENABLED` (default `true`). When `false`, `?debug=true` is ignored and `meta.debug: "disabled"` says so.
+- Size: about 60 small candidate rows plus the prompt (≤ `CONTEXT_BUDGET_TOKENS`, about 24 KB): fine for one response.
+
 **`GET /stats`:**
 
 ```json
@@ -580,8 +605,8 @@ It writes `eval/results/grid.json` and a Markdown table for `EVALUATION.md`.
 | `GET /codebases/{id}` | + `files: [{path, language, chunk_count, bytes, fallback}]` | |
 | `GET /codebases/{id}/chunks?path=` | Chunks of one file (UI "what got indexed") | Code included |
 | `DELETE /codebases/{id}` | `204` | `409 codebase-read-only` for samples |
-| `POST /search` | `{request_id, hits: [Source], trace}` | `{query, codebases, k, mode}`. 0 LLM calls |
-| `POST /query` | `QueryResult` (§11.3) | `{question, codebases, k?, mode?}` |
+| `POST /search` | `{request_id, hits: [Source], trace}` | `{query, codebases, k, mode}`. 0 LLM calls. `?debug=true` adds `pipeline` up to `reranked` (§10.1) |
+| `POST /query` | `QueryResult` (§11.3) | `{question, codebases, k?, mode?}`. `?debug=true` adds `pipeline` (§10.1) |
 | `POST /evaluate` | `200 EvalReport` (retrieval) · `202` + `Location` (full) | `{mode, dataset: "builtin" \| examples[], k?, search_mode?}` |
 | `GET /evaluations` | Stored reports: `grid`, latest `full`, recent runs | |
 | `GET /evaluations/{id}` | One report | |
@@ -628,6 +653,31 @@ It writes `eval/results/grid.json` and a Markdown table for `EVALUATION.md`.
             "cache": {"query_embedding": false, "llm": false}},
   "meta": {"mode": "hybrid_rerank", "k": 5, "model": "gemini-3.5-flash-lite", "prompt_version": "1",
            "embedder": "BAAI/bge-small-en-v1.5", "reranker": "Xenova/ms-marco-MiniLM-L-6-v2", "chunker_version": "1"}
+}
+```
+
+With `?debug=true` the same response also has (abridged):
+
+```json
+"pipeline": {
+  "question": "How does authentication work?",
+  "query_rewrite": null,
+  "query_embedding": {"model": "BAAI/bge-small-en-v1.5", "dims": 384, "cached": false, "ms": 18},
+  "vector_candidates": [
+    {"rank": 1, "chunk_id": "c9d0…", "codebase": "shopflow", "path": "web/src/auth/AuthContext.tsx", "symbol": "AuthProvider",
+     "start_line": 12, "end_line": 58, "distance": 0.27, "similarity": 0.73},
+    {"rank": 2, "chunk_id": "a1b2…", "path": "backend/app/auth/service.py", "symbol": "AuthService.login", "similarity": 0.71}
+  ],
+  "bm25_candidates": [
+    {"rank": 1, "chunk_id": "a1b2…", "symbol": "AuthService.login", "score": 7.2, "matched_terms": ["authentication", "auth"]}
+  ],
+  "rrf_merged": [{"rank": 1, "chunk_id": "a1b2…", "symbol": "AuthService.login", "rrf": 0.0325, "vector_rank": 2, "bm25_rank": 1}],
+  "reranked":   [{"rank": 1, "chunk_id": "a1b2…", "symbol": "AuthService.login", "rerank": 6.4, "rank_before": 1}],
+  "prompt": {"prompt_version": "1", "est_tokens": 2400, "chunks_sent": 5, "chunks_dropped": 0,
+             "system": "# Role\nYou are a senior engineer answering questions about a codebase…",
+             "user": "# Question\nHow does authentication work?\n\n# Code excerpts (most relevant first)\n[1] shopflow/backend/app/auth/service.py:24-51 · AuthService.login\n```python\n…"},
+  "llm": {"raw_output": "{\"answer\": \"Authentication uses JWT…\", \"found\": true, \"citations\": [1, 2]}",
+          "cached": false, "input_tokens": 2410, "output_tokens": 180}
 }
 ```
 
@@ -769,6 +819,7 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 | A3 | Citation check: out-of-range `[7]`, a mismatch between the text markers and `citations`, `found` without citations → one repair with the errors → success. A second failure → `grounded = false` |
 | A4 | `found: false` passes through. With 0 hits, the service returns `found: false` **without** an LLM call |
 | A5 | The second identical question costs 0 inner calls (caching client). A changed index → a new call |
+| A6 | `PipelineDebug`: the candidate lists match what the Retriever actually used (same ids and order). `rank_before` is correct after the rerank. `prompt.user` equals the text the fake LLM received byte for byte. A repair shows both attempts. A cached answer still has the prompt. `query_rewrite` is `null` |
 
 **Evaluation (0 calls)**
 
@@ -792,6 +843,7 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 | P5 | Every RFC 9457 row of §11.4 (+ `Retry-After` where listed, CORS on errors) |
 | P6 | Rate limits per endpoint group |
 | P7 | `/stats` numbers after a scripted sequence. `/health` readiness fields |
+| P8 | `?debug=true` on `/query` adds `pipeline` with all stages. On `/search` it stops at `reranked`. Without the flag there is no `pipeline` key. With `PIPELINE_DEBUG_ENABLED=false` the flag is ignored and `meta.debug = "disabled"` |
 
 **Infrastructure, observability, architecture**
 
@@ -800,6 +852,7 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 | Q1 | Copied Lab 3 decorator and caching tests |
 | Q2 | Tracer: spans nest in order, errors recorded, `Trace` totals. Log lines are JSON and contain **no question text or code** (asserted by feeding a unique marker string) |
 | Q3 | Trace pruning to `TRACE_RETENTION` |
+| Q4 | A `?debug=true` query with a unique marker in the question and in the indexed code: the marker is in the HTTP response, but **not** in any log line or in the `traces` table |
 | S1 | Layer import rules (§3). Ruff `S608` active |
 
 **Model integration and regression (`-m models`, 0 calls)**
@@ -820,8 +873,8 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 | 3 | Sample codebases (`shopflow`, `ledger`) + dataset (relevance resolves) + metrics | E1–E3, C7 on samples | 0 |
 | 4 | BM25, RRF, fake embedder/reranker, ChromaDB adapter, IndexingService + caches, Retriever | R1–R5, I1–I9 | 0 |
 | 5 | fastembed adapters, model download, snapshot builder; measure memory | M1, M2, M4 | 0 |
-| 6 | Prompts + AnswerService + Tracer + stats (fake LLM) | A1–A5, Q2–Q3 | 0 |
-| 7 | API + jobs + guards + startup (snapshot, sweeper) | P1–P7, S1 | 0 |
+| 6 | Prompts + AnswerService + Tracer + stats (fake LLM) | A1–A6, Q2–Q4 | 0 |
+| 7 | API + jobs + guards + startup (snapshot, sweeper) | P1–P8, S1 | 0 |
 | 8 | Evaluation: retrieval eval, regression baseline, grid → first `EVALUATION.md` table | E4–E6, M3 | 0 |
 | 9 | Real Gemini: first questions by hand, full evaluation + judge sanity; seed cache; finish `EVALUATION.md` | §9.4 targets | ~44 |
 | 10 | Deploy + V1–V9 | §13 | 0–2 |

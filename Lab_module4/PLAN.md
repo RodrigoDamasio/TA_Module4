@@ -187,6 +187,7 @@ Local ONNX models run on the server's CPU (0 API calls). Gemini is the only exte
 ## 8. Observability (course §6)
 
 - **Trace per request:** request id, spans (`embed_query`, `vector_search`, `bm25`, `fuse`, `rerank`, `generate`, `validate`) with milliseconds, retrieved ids with scores (top/lowest), tokens in/out, model, and cache hits. It is returned in the `/query` response, shown in the UI, and stored in SQLite (last 500).
+- **Pipeline debug view (`?debug=true` on `/query` and `/search`):** every transformation of one question, in order: input → (rewrite, reserved) → query embedding → ChromaDB candidates → BM25 candidates → RRF merge → rerank (with rank moves) → the exact prompt sent to Gemini → the raw model output. It goes only into the response to the caller, never into logs or storage. The UI shows it as "How this answer was made". See [BACKEND_PLAN §10.1](BACKEND_PLAN.md#101-pipeline-debug-view-debugtrue).
 - **Structured JSON logs** with the same request id. **Deviation from the PDF:** the course logs the query text; our standard logs ids, sizes, counters and a short hash only. User questions and code never go into logs.
 - **Cost and quota (`GET /stats`):** queries, LLM calls, tokens, cache hit rate, p50/p95 latency per stage, and calls used today against the free-tier daily limit. The course's dollar view becomes "requests left today", plus what the same tokens would cost on a paid tier.
 - **Debugging playbook:** the course §6.4 symptoms (wrong answer, "I don't know" when the answer exists, slow, costly) map to trace fields. The trace answers "were the right chunks retrieved?" before anyone blames the model.
@@ -199,7 +200,7 @@ Local ONNX models run on the server's CPU (0 API calls). Gemini is the only exte
 | `GET /jobs/{id}` | Progress and result of an index or evaluation job | 0 |
 | `GET /codebases` · `GET /codebases/{id}` · `DELETE /codebases/{id}` | List, inspect (files, chunk counts), delete. Sample codebases are read-only | 0 |
 | `POST /search` | Semantic code search only: `{query, codebases, k, mode}` → ranked chunks with scores | 0 |
-| `POST /query` | `{question, codebases, k, mode, rerank}` → `{answer, found, sources[], trace}` | 1 (0 cached) |
+| `POST /query` | `{question, codebases, k, mode}` → `{answer, found, sources[], trace}`. `?debug=true` adds `pipeline` (every stage + the exact prompt) | 1 (0 cached) |
 | `POST /evaluate` | `{dataset, mode: retrieval\|full, k, strategies?, max_calls?}` → `200` report (retrieval) or `202 + Location` (full) | 0 / ~44 first run, 0 cached |
 | `GET /evaluations` · `GET /evaluations/{id}` | Stored and running reports | 0 |
 | `GET /stats` · `GET /health` · `GET /problems/{slug}` | Observability, health, RFC 9457 | 0 |

@@ -78,7 +78,7 @@ flowchart LR
     lang -- "other" --> fx["fixed-size chunker<br/>overlap 15 %"]
     py & ts & md & fx --> split["split oversize chunks<br/>(token window)"]
     split --> ctx["add context header<br/>file · class · signature"]
-    ctx --> emb["embed<br/>(cache by text hash)"]
+    ctx --> emb["embed with bge-small<br/>(local ONNX model)<br/>cache by text hash"]
     emb --> store["replace file's chunks<br/>in ChromaDB + BM25"]
 ```
 
@@ -89,20 +89,27 @@ sequenceDiagram
     participant UI as Next.js UI
     participant API as FastAPI
     participant R as Retriever
+    participant M as Local ONNX models
     participant C as ChromaDB
     participant G as Gemini
 
-    UI->>API: POST /query (question, codebases, k, search, rerank)
+    UI->>API: POST /query (question, codebases, k, mode)
     API->>R: retrieve
-    R->>R: embed question (local, cached)
-    R->>C: vector search top 20 (codebase filter)
-    R->>R: BM25 top 20 then RRF fusion
-    R->>R: cross-encoder rerank, keep top k
-    API->>G: answer prompt with k numbered chunks
+    R->>M: bge-small embeds the question (cached)
+    M-->>R: query vector (384 dims)
+    R->>C: nearest 20 chunks (codebase filter)
+    C-->>R: candidates + distances
+    R->>R: BM25 top 20 then RRF merge
+    R->>M: MiniLM cross-encoder scores 20 pairs
+    M-->>R: scores, keep top k
+    R-->>API: k chunks with all scores
+    API->>G: prompt with k numbered chunks (1 call)
     G-->>API: answer + citations + found
-    API->>API: validate schema, check citations against chunks
+    API->>API: validate schema, check citations
     API-->>UI: answer, sources, trace (spans, scores, tokens, cached)
 ```
+
+Local ONNX models run on the server's CPU (0 API calls). Gemini is the only external call.
 
 ## 4. Chunking (course §2)
 

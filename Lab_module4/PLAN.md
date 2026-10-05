@@ -169,7 +169,7 @@ sequenceDiagram
 
 **Judge sanity check:** Module 3's Verifier gave 10/10 to everything. Before trusting the judge, it scores 4 **planted bad answers** (wrong function, invented config, unsupported claim, off-topic). The run reports whether the judge rated each one ≤ 2. A lenient judge is reported as a finding, not hidden.
 
-**Comparison grid** (0 calls, runs in seconds): 3 chunking strategies × 4 search modes × K ∈ {3, 5, 10}, with the optional Gemini embedder as a last row. It is written to `EVALUATION.md` with a short analysis.
+**Comparison grid** (0 calls, a few minutes the first time, then cached): 3 chunking strategies × 4 search modes × K ∈ {3, 5, 10}, for **two local embedders** (`bge-small-en-v1.5` and the 2.5× faster `all-MiniLM-L6-v2`), with the optional Gemini embedder as a last row. It is written to `EVALUATION.md` with a short analysis.
 
 **`POST /evaluate`:**
 - `mode: "retrieval"` runs live, synchronously, and free.
@@ -188,7 +188,8 @@ sequenceDiagram
 
 | Method · Path | Purpose | LLM calls |
 |---|---|---|
-| `POST /index/files` | `{codebase, files: [{path, content}]}` → `{files_indexed, files_unchanged, chunks_added, chunks_removed, by_language, duration_ms}`. Re-indexing a path replaces its chunks | 0 |
+| `POST /index/files` | `{codebase, files: [{path, content}]}` → `202` + `Location: /jobs/{id}` (background job with progress, because local embedding takes ~150 ms per chunk), or `?wait=true` → `200 {files_indexed, files_unchanged, skipped, chunks_added, chunks_removed, by_language, duration_ms}`. Re-indexing a path replaces its chunks | 0 |
+| `GET /jobs/{id}` | Progress and result of an index or evaluation job | 0 |
 | `GET /codebases` · `GET /codebases/{id}` · `DELETE /codebases/{id}` | List, inspect (files, chunk counts), delete. Sample codebases are read-only | 0 |
 | `POST /search` | Semantic code search only: `{query, codebases, k, mode}` → ranked chunks with scores | 0 |
 | `POST /query` | `{question, codebases, k, mode, rerank}` → `{answer, found, sources[], trace}` | 1 (0 cached) |
@@ -199,8 +200,8 @@ sequenceDiagram
 **Errors:** RFC 9457, including `404 codebase-not-found`, `409 codebase-read-only`, `413 input-too-large`, `422 unsupported-file-type`, `422 empty-index`, `429 rate-limited`, `503 llm-quota-exhausted`/`llm-unavailable` + `Retry-After`.
 
 **Limits (public demo):**
-- Per request: ≤ 50 files and ≤ 1 MB.
-- Per codebase: ≤ 300 files and ≤ 5 MB.
+- Per request: ≤ 50 files and ≤ 500 KB.
+- Per codebase: ≤ 200 files and ≤ 1 MB (≈ 700 chunks ≈ 2 minutes of embedding).
 - ≤ 10 user codebases. User codebases expire after **24 h**.
 - Paths are relative, with no `..`. Extensions are allow-listed.
 - Per-IP rate limits on indexing and querying.
@@ -333,7 +334,7 @@ Lab_module4/
 
 | Risk | Mitigation |
 |---|---|
-| ONNX models and ChromaDB raise memory and image size on Railway | No PyTorch. Small models (~130 MB embedder, ~90 MB reranker), loaded once and shared. Measure RSS in Phase 2. Fallback: turn the reranker off by config |
+| ONNX models and ChromaDB raise memory and image size on Railway | No PyTorch. **Measured:** ≈ 450–550 MB steady state with both models, batch size 4 (batch 32 peaked at ~1 GB). Fallback: turn the reranker off (−225 MB). See [BACKEND_PLAN §2.1](BACKEND_PLAN.md#21-measured-on-this-machine-scratch-venv-8-cores) |
 | Model download on first start (cold start, network) | Download at build time into the image or volume cache. `/health` reports "models loading" until ready |
 | Long functions exceed the 512-token window and get silently truncated | Split oversize chunks into overlapping windows, each with the context header. A unit test asserts that no embedded text exceeds the window |
 | `flash-lite` as both answerer and judge (self-grading bias, leniency) | One-call rubric with reasons, the judge sanity check on planted bad answers, and deterministic answer checks next to the judge scores |

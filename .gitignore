@@ -1,0 +1,14 @@
+# Only Lab_module4 is published. Everything else in the Module 4 folder
+# (course PDF, scripts, notes, test files) stays local.
+/*
+!/.gitignore
+!/README.md
+!/Lab_module4/
+
+# Safety net for anything generated inside Lab_module4
+__pycache__/
+.venv/
+node_modules/
+.env
+.env.local
+*.db

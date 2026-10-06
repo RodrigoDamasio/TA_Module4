@@ -889,4 +889,20 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 
 ## 17. Implementation notes (deviations from this plan)
 
-_None yet. Filled in during implementation._
+Implemented in steps 1–9. Where the code differs from the plan above:
+
+| Plan | Implementation | Why |
+|---|---|---|
+| One chunk per function / class / method (§6) | Small neighbouring units of the same scope are **packed** up to `CHUNK_MIN_CHARS=700` (≈ 200 tokens); `CHUNKER_VERSION` 2 | Measured: unpacked chunks had a median of 216 characters (49 of 110 under 200), below the course's 200–1000-token guideline (§2.3). Packing raised Recall@5 from 0.73 to 0.82 and MRR from 0.73 to 0.80 (see [EVALUATION.md](EVALUATION.md)). Ground truth is resolved from the unpacked units, so the evaluation is unaffected |
+| Default mode `hybrid_rerank` | Default mode **`hybrid`** (`DEFAULT_MODE`); `hybrid_rerank` stays selectable | On the dataset, the ms-marco cross-encoder (trained on web passages) raised Recall@5 slightly (0.84 vs 0.82) but lowered MRR (0.69 vs 0.80), and costs ~0.5 s per question |
+| Plain RRF (§8.2) | **Weighted** RRF, 0.7 vectors / 0.3 BM25 (`VECTOR_WEIGHT`, `BM25_WEIGHT`) | The course's hybrid weights (§3.3). With equal weights, weak keyword hits on natural-language questions pushed good vector hits down |
+| Comparison grid fixed-size at `CHUNK_MAX_CHARS` | Fixed-size baseline at **500** characters (the course's Strategy 1) plus a "context chars" column | At 1,400 characters the small sample files became whole-file chunks, and line-overlap relevance rewards big chunks |
+| Every `[n]` in the text must equal `citations` | Markers, **when present**, must equal `citations`; an answer with a valid list but no inline markers is accepted. Schema fields carry descriptions; prompt **v2** | The first real call left the markers out of the text and spent a repair call on a cosmetic issue |
+| Chroma document = `embed_text` (§7.3) | Document = the code; the header is metadata | `embed_text` is rebuilt exactly from both, and the UI needs the code alone |
+| `chunking/fixed_size.py` | Fixed-size windows come from the shared splitter (a `WINDOW` draft) | One windowing implementation for oversize splits and the fixed strategy |
+| Judge role inside `judge_task.md` | Separate `judge_system.md` | Same structure as the answer prompts |
+| — | `application/structured.py` (structured call + repair, every attempt recorded) | Shared by the answer service and the judge; feeds the debug view |
+| Production cache seeded from `eval/llm_cache.db` | `eval.run --publish` exports `samples/snapshot/llm_cache_seed.json.gz`, loaded at startup | `.railwayignore` excludes databases |
+| `/stats` "calls today" | In-memory counters (reset on restart) | The circuit breaker is the real quota guard; documented in the field description |
+| Search modes: `mode` required with a default | `mode` optional; `None` means `DEFAULT_MODE` | The default can change by config without breaking clients |
+

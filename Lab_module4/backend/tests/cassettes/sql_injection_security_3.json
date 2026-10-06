@@ -1,0 +1,46 @@
+{
+  "sdk_http_response": {
+    "headers": {
+      "x-gemini-service-tier": "standard",
+      "content-type": "application/json; charset=UTF-8",
+      "vary": "Origin, X-Origin, Referer",
+      "content-encoding": "gzip",
+      "date": "Sat, 26 Sep 2026 00:08:41 GMT",
+      "server": "scaffolding on HTTPServer2",
+      "x-xss-protection": "0",
+      "x-frame-options": "SAMEORIGIN",
+      "x-content-type-options": "nosniff",
+      "server-timing": "gfet4t7; dur=17733",
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "transfer-encoding": "chunked"
+    }
+  },
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"summary\": \"This module provides administrative helper functions for querying user data from a SQLite database. While the code is brief and readable, it contains a critical SQL injection vulnerability in the user lookup query.\",\n  \"issues\": [\n    {\n      \"severity\": \"critical\",\n      \"line\": 7,\n      \"category\": \"security\",\n      \"description\": \"SQL query is constructed using string interpolation (f-string) with the caller-supplied `username`. An attacker can manipulate this parameter to execute arbitrary SQL commands, bypass authentication, or extract sensitive data.\",\n      \"suggestion\": \"Use parameterized queries instead of string formatting: replace line 7 and 8 with `return conn.execute(\\\"SELECT id, email FROM users WHERE username = ?\\\", (username,)).fetchone()`.\"\n    }\n  ],\n  \"suggestions\": [\n    \"Always use parameterized queries or an ORM across the codebase to prevent SQL injection vulnerabilities.\",\n    \"Add automated unit tests verifying safe handling of special characters and SQL injection payloads.\"\n  ],\n  \"metrics\": {\n    \"complexity\": \"low\",\n    \"readability\": \"good\",\n    \"test_coverage_estimate\": \"none\"\n  }\n}",
+            "thought_signature": "EmkKZwFpFH0TLz0_NopDLigTXY57HVP-63IkhUe-cYC3qNlK2AO59JIXOA9BYFE_33dLI4N2r6q9iKKScluSY6oQ5HfE3kg5metZmDvdw6J-O4Xx8Ur7fn37UHniFvPdlTll5TYNaG9MsdE="
+          }
+        ],
+        "role": "model"
+      },
+      "finish_reason": "STOP",
+      "index": 0
+    }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "-Ay3apW_BouIqtsPpOzukQk",
+  "usage_metadata": {
+    "candidates_token_count": 262,
+    "prompt_token_count": 1409,
+    "prompt_tokens_details": [
+      {
+        "modality": "TEXT",
+        "token_count": 1409
+      }
+    ],
+    "total_token_count": 1671
+  }
+}

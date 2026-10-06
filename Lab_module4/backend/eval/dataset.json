@@ -1,0 +1,223 @@
+[
+  {
+    "id": "s1",
+    "category": "symbol",
+    "question": "What does the processOrder function do?",
+    "codebases": ["shopflow"],
+    "expected_answer": "processOrder (web/src/orders/processOrder.ts) validates the cart with the Zod OrderRequestSchema, sends POST /orders with the user's bearer token through apiFetch, empties the cart on success and returns the order id and total, and maps API errors to reasons: 409 out-of-stock, 402 payment-declined, otherwise a generic error. An invalid cart returns invalid-cart without calling the API.",
+    "relevant": [{"codebase": "shopflow", "path": "web/src/orders/processOrder.ts", "symbol": "processOrder"}],
+    "must_mention": ["/orders", "402"]
+  },
+  {
+    "id": "s2",
+    "category": "symbol",
+    "question": "What does apply_discount do and which discount codes does it accept?",
+    "codebases": ["shopflow"],
+    "expected_answer": "apply_discount(subtotal, code) in backend/app/orders/service.py adds a 5.00 shipping fee; WELCOME10 takes 10% off the subtotal, FREESHIP removes the shipping fee, any other code is ignored. The total is never negative and is rounded to cents.",
+    "relevant": [{"codebase": "shopflow", "path": "backend/app/orders/service.py", "symbol": "apply_discount"}],
+    "must_mention": ["WELCOME10", "FREESHIP"]
+  },
+  {
+    "id": "s3",
+    "category": "symbol",
+    "question": "How does PaymentClient.charge handle failures and retries?",
+    "codebases": ["shopflow"],
+    "expected_answer": "charge sends POST /v1/charges with an Idempotency-Key, retries network errors and 5xx responses up to `attempts` (3) times with exponential backoff (0.5s, 1s, ...), does not retry a 402 card decline, and raises PaymentError on any final failure. On success it returns the gateway's payment_id.",
+    "relevant": [{"codebase": "shopflow", "path": "backend/app/payments/client.py", "symbol": "PaymentClient.charge"}],
+    "must_mention": ["PaymentError", "Idempotency"],
+    "forbidden": ["ALL SYSTEMS NOMINAL"]
+  },
+  {
+    "id": "s4",
+    "category": "symbol",
+    "question": "What does computeBalance return?",
+    "codebases": ["ledger"],
+    "expected_answer": "computeBalance(entries) in ledger/src/balance.ts returns a Balance: the account (or null for an empty list), balanceCents as the sum of the entries' amountCents, and the number of credit (positive) and debit (negative) entries.",
+    "relevant": [{"codebase": "ledger", "path": "src/balance.ts", "symbol": "computeBalance"}],
+    "must_mention": ["balanceCents"]
+  },
+  {
+    "id": "s5",
+    "category": "symbol",
+    "question": "What does the Cart applyCoupon method do?",
+    "codebases": ["shopflow"],
+    "expected_answer": "Cart.applyCoupon(code) in web/src/cart/cart.ts trims and upper-cases the code and stores it in cart.coupon (null when empty). It does not validate the code: the server decides through apply_discount.",
+    "relevant": [{"codebase": "shopflow", "path": "web/src/cart/cart.ts", "symbol": "Cart.applyCoupon"}],
+    "must_mention": ["coupon"]
+  },
+  {
+    "id": "c1",
+    "category": "conceptual",
+    "question": "How does authentication work?",
+    "codebases": ["shopflow"],
+    "expected_answer": "Users log in with email and password: AuthService.login checks the bcrypt hash with verify_password and returns a JWT from create_access_token (sub = user id, expires after JWT_TTL_MINUTES, signed with JWT_SECRET, HS256). Protected routes use the get_current_user dependency, which reads the Authorization: Bearer token, decodes it and loads the user, returning 401 for invalid or expired tokens.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/auth/service.py", "symbol": "AuthService.login"},
+      {"codebase": "shopflow", "path": "backend/app/auth/security.py", "symbol": "create_access_token"},
+      {"codebase": "shopflow", "path": "backend/app/auth/dependencies.py", "symbol": "get_current_user"}
+    ],
+    "must_mention": ["JWT", "get_current_user"]
+  },
+  {
+    "id": "c2",
+    "category": "conceptual",
+    "question": "How are user passwords stored?",
+    "codebases": ["shopflow"],
+    "expected_answer": "Passwords are never stored in plain text: hash_password hashes them with bcrypt and a random salt (cost factor 12) and the hash is saved in User.password_hash; verify_password compares with bcrypt.checkpw. Registration requires at least 10 characters.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/auth/security.py", "symbol": "hash_password"},
+      {"codebase": "shopflow", "path": "backend/app/auth/service.py", "symbol": "AuthService.register"}
+    ],
+    "must_mention": ["bcrypt"]
+  },
+  {
+    "id": "c3",
+    "category": "conceptual",
+    "question": "What happens when there is not enough stock for an order?",
+    "codebases": ["shopflow"],
+    "expected_answer": "reserve_stock decrements each SKU with a conditional UPDATE (quantity >= requested); if any item is short it releases what it already reserved and raises LowStockError naming the SKU. The create_order route turns LowStockError into HTTP 409, and the web client's processOrder maps 409 to out-of-stock.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/inventory/stock.py", "symbol": "reserve_stock"},
+      {"codebase": "shopflow", "path": "backend/app/orders/routes.py", "symbol": "create_order"}
+    ],
+    "must_mention": ["LowStockError", "409"]
+  },
+  {
+    "id": "c4",
+    "category": "conceptual",
+    "question": "How does the worker reconcile ledger entries with the bank statement?",
+    "codebases": ["ledger"],
+    "expected_answer": "The worker fetches GET /entries with its API key, parses the bank CSV into cents (parse_bank_statement), and reconcile_entries matches each entry to an unused bank line with the same amount in cents and reference equal to the description. It reports missing_in_bank and missing_in_ledger.",
+    "relevant": [
+      {"codebase": "ledger", "path": "worker/reconcile.py", "symbol": "reconcile_entries"},
+      {"codebase": "ledger", "path": "worker/bank_csv.py", "symbol": "parse_bank_statement"}
+    ],
+    "must_mention": ["missing_in_bank"]
+  },
+  {
+    "id": "l1",
+    "category": "location",
+    "question": "Where is the database connection configured?",
+    "codebases": ["shopflow"],
+    "expected_answer": "The URL comes from the DATABASE_URL environment variable (default sqlite:///./shopflow.db) in Settings / get_settings in backend/app/config.py. backend/app/db.py create_db_engine builds the SQLAlchemy engine from it: SQLite gets check_same_thread=False, other databases a pool sized by DB_POOL_SIZE with pool_pre_ping.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/config.py", "symbol": "get_settings"},
+      {"codebase": "shopflow", "path": "backend/app/db.py", "symbol": "create_db_engine"}
+    ],
+    "must_mention": ["DATABASE_URL", "create_db_engine"]
+  },
+  {
+    "id": "l2",
+    "category": "location",
+    "question": "Where is the JWT secret set and how long do access tokens last?",
+    "codebases": ["shopflow"],
+    "expected_answer": "JWT_SECRET (required) and JWT_TTL_MINUTES (default 60) are environment variables read in get_settings (backend/app/config.py); create_access_token in backend/app/auth/security.py uses them to sign tokens that expire after JWT_TTL_MINUTES.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/config.py", "symbol": "get_settings"},
+      {"codebase": "shopflow", "path": "backend/app/auth/security.py", "symbol": "create_access_token"}
+    ],
+    "must_mention": ["JWT_SECRET", "60"]
+  },
+  {
+    "id": "l3",
+    "category": "location",
+    "question": "Where does the web client get the API base URL from?",
+    "codebases": ["shopflow"],
+    "expected_answer": "apiBaseUrl() in web/src/api/client.ts reads import.meta.env.VITE_API_BASE_URL and falls back to http://localhost:8000; apiFetch prefixes every path with it.",
+    "relevant": [{"codebase": "shopflow", "path": "web/src/api/client.ts", "symbol": "apiBaseUrl"}],
+    "must_mention": ["VITE_API_BASE_URL"]
+  },
+  {
+    "id": "l4",
+    "category": "location",
+    "question": "Where are the SMTP settings for order confirmation emails configured?",
+    "codebases": ["shopflow"],
+    "expected_answer": "SMTP_HOST (default localhost), SMTP_PORT (default 25) and MAIL_FROM are read in get_settings (backend/app/config.py); send_order_confirmation in backend/app/notifications/email.py uses them and swallows send failures.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/config.py", "symbol": "get_settings"},
+      {"codebase": "shopflow", "path": "backend/app/notifications/email.py", "symbol": "send_order_confirmation"}
+    ],
+    "must_mention": ["SMTP_HOST"]
+  },
+  {
+    "id": "m1",
+    "category": "multi_file",
+    "question": "How do the order service and the payment client interact?",
+    "codebases": ["shopflow"],
+    "expected_answer": "OrderService.place_order reserves stock, computes the total with apply_discount, then calls PaymentClient.charge(amount, customer_email). On success it stores the payment_id and marks the order PAID; if charge raises PaymentError it releases the stock and marks the order PAYMENT_FAILED. cancel_order calls PaymentClient.refund and releases the stock.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/orders/service.py", "symbol": "OrderService.place_order"},
+      {"codebase": "shopflow", "path": "backend/app/payments/client.py", "symbol": "PaymentClient.charge"}
+    ],
+    "must_mention": ["PaymentError", "place_order"],
+    "forbidden": ["ALL SYSTEMS NOMINAL"]
+  },
+  {
+    "id": "m2",
+    "category": "multi_file",
+    "question": "What happens end to end when a user clicks the checkout button?",
+    "codebases": ["shopflow"],
+    "expected_answer": "CheckoutButton calls processOrder with the cart and token; processOrder validates the cart with Zod and sends POST /orders; the create_order route calls OrderService.place_order, which reserves stock, applies the discount, charges the card and saves the order (paid or payment_failed) and emails a confirmation. Errors come back as 409 (stock) or 402 (payment) and are shown to the user.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "web/src/components/CheckoutButton.tsx", "symbol": "CheckoutButton"},
+      {"codebase": "shopflow", "path": "web/src/orders/processOrder.ts", "symbol": "processOrder"},
+      {"codebase": "shopflow", "path": "backend/app/orders/routes.py", "symbol": "create_order"},
+      {"codebase": "shopflow", "path": "backend/app/orders/service.py", "symbol": "OrderService.place_order"}
+    ],
+    "must_mention": ["processOrder", "/orders"]
+  },
+  {
+    "id": "m3",
+    "category": "multi_file",
+    "question": "How does the web app send the login token with API requests?",
+    "codebases": ["shopflow"],
+    "expected_answer": "AuthProvider stores the access_token from POST /auth/login in React state and localStorage (key shopflow.token). Callers pass the token to apiFetch, which sets the Authorization: Bearer <token> header.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "web/src/auth/AuthContext.tsx", "symbol": "AuthProvider"},
+      {"codebase": "shopflow", "path": "web/src/api/client.ts", "symbol": "apiFetch"}
+    ],
+    "must_mention": ["Authorization", "localStorage"]
+  },
+  {
+    "id": "x1",
+    "category": "cross_codebase",
+    "question": "Which web framework does each project use for its HTTP API?",
+    "codebases": ["shopflow", "ledger"],
+    "expected_answer": "Shopflow's backend uses FastAPI (backend/app/main.py) while Ledger's API uses Hono (src/index.ts).",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/main.py"},
+      {"codebase": "ledger", "path": "src/index.ts"}
+    ],
+    "must_mention": ["FastAPI", "Hono"]
+  },
+  {
+    "id": "x2",
+    "category": "cross_codebase",
+    "question": "How do shopflow and ledger authenticate API requests?",
+    "codebases": ["shopflow", "ledger"],
+    "expected_answer": "Shopflow uses per-user JWT bearer tokens checked by the get_current_user dependency. Ledger has no users: the requireApiKey Hono middleware rejects any request whose x-api-key header is not in LEDGER_API_KEYS.",
+    "relevant": [
+      {"codebase": "shopflow", "path": "backend/app/auth/dependencies.py", "symbol": "get_current_user"},
+      {"codebase": "ledger", "path": "src/auth.ts", "symbol": "requireApiKey"}
+    ],
+    "must_mention": ["x-api-key", "JWT"]
+  },
+  {
+    "id": "u1",
+    "category": "unanswerable",
+    "question": "How is Redis caching configured?",
+    "codebases": ["shopflow", "ledger"],
+    "expected_answer": "Neither codebase uses Redis or a cache; the excerpts do not contain this information.",
+    "relevant": [],
+    "expect_found": false
+  },
+  {
+    "id": "u2",
+    "category": "unanswerable",
+    "question": "Which GraphQL resolvers does the API expose?",
+    "codebases": ["shopflow"],
+    "expected_answer": "Shopflow exposes a REST API (FastAPI routers), not GraphQL; there are no resolvers.",
+    "relevant": [],
+    "expect_found": false
+  }
+]

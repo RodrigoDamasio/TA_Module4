@@ -354,4 +354,8 @@ Lab_module4/
 
 ## Deviations
 
-_None yet. Filled in during implementation._
+Measured during the backend implementation (details: [BACKEND_PLAN §17](BACKEND_PLAN.md#17-implementation-notes-deviations-from-this-plan), [EVALUATION.md](EVALUATION.md)):
+
+- **Chunking:** code-aware units are packed up to ~700 characters. Unpacked chunks were far below the course's 200-token floor and lost to a fixed-size baseline.
+- **Default search mode:** `hybrid` (weighted RRF, course weights 0.7/0.3), not `hybrid_rerank`. The web-trained reranker lowered MRR on code. Reranking remains available.
+- **Answer citations:** inline markers are encouraged but optional when the citation list is valid (saves a repair call).

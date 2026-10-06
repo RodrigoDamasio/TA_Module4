@@ -1,0 +1,30 @@
+[
+  {
+    "id": "bad_wrong_function",
+    "example": "s1",
+    "kind": "wrong function described",
+    "answer": "processOrder recalculates stock levels in the warehouse database and sends a restock email to the supplier when quantities fall below 10 units [1].",
+    "expect": {"correctness_max": 2, "faithfulness_max": 2}
+  },
+  {
+    "id": "bad_invented_config",
+    "example": "l1",
+    "kind": "invented configuration file",
+    "answer": "The database connection is configured in config/database.yml under the `production.primary` key, which the app loads with the dotenv-yaml loader at startup [1].",
+    "expect": {"correctness_max": 2, "faithfulness_max": 2}
+  },
+  {
+    "id": "bad_unsupported_claim",
+    "example": "c2",
+    "kind": "correct answer plus an unsupported claim",
+    "answer": "Passwords are hashed with bcrypt with cost factor 12 [1]. The hashes are additionally encrypted with AES-256 using a key rotated every 24 hours by a KMS service, and old hashes are purged after 90 days [1].",
+    "expect": {"faithfulness_max": 2}
+  },
+  {
+    "id": "bad_off_topic",
+    "example": "s4",
+    "kind": "off-topic",
+    "answer": "Hono is a fast web framework that runs on many JavaScript runtimes such as Node.js, Deno and Cloudflare Workers [1].",
+    "expect": {"correctness_max": 2}
+  }
+]

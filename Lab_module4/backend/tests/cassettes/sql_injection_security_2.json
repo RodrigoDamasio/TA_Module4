@@ -1,0 +1,46 @@
+{
+  "sdk_http_response": {
+    "headers": {
+      "x-gemini-service-tier": "standard",
+      "content-type": "application/json; charset=UTF-8",
+      "vary": "Origin, X-Origin, Referer",
+      "content-encoding": "gzip",
+      "date": "Sat, 26 Sep 2026 00:08:18 GMT",
+      "server": "scaffolding on HTTPServer2",
+      "x-xss-protection": "0",
+      "x-frame-options": "SAMEORIGIN",
+      "x-content-type-options": "nosniff",
+      "server-timing": "gfet4t7; dur=1011",
+      "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+      "transfer-encoding": "chunked"
+    }
+  },
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "### Candidate Findings\n\n- **Line 7**: SQL injection vulnerability caused by constructing a SQL query using string interpolation (`f\"...\"`) with untrusted input `username` rather than using parameterized query placeholders.",
+            "thought_signature": "EmkKZwFpFH0T3S2NY_JYwLSOpOEtfFLQT-rA4klXe9pEmszHqXeP6THqWDAu1HQVL1sJ-DJZWu2wmD60wG77xDWDnzeaWpLvnYZPrxybPLvSQTq6pwZsJlkd8cajIEFAN-2fgGPY0KMa-YU="
+          }
+        ],
+        "role": "model"
+      },
+      "finish_reason": "STOP",
+      "index": 0
+    }
+  ],
+  "model_version": "gemini-3.8-flash",
+  "response_id": "8gy3aq2dB4GdqtsP7evC4QY",
+  "usage_metadata": {
+    "candidates_token_count": 41,
+    "prompt_token_count": 1656,
+    "prompt_tokens_details": [
+      {
+        "modality": "TEXT",
+        "token_count": 1656
+      }
+    ],
+    "total_token_count": 1697
+  }
+}

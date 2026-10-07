@@ -64,8 +64,10 @@ def test_embedder_similarity_and_token_window(models):
     assert embedder.dim == 384 and embedder.max_tokens == 512
     query = embedder.embed_query("How are passwords hashed?")
     good, bad = embedder.embed_documents(
-        ["def hash_password(p):\n    return bcrypt.hashpw(p, bcrypt.gensalt())",
-         "export function computeBalance(entries) { return entries.length }"]  # fmt: skip
+        [
+            "def hash_password(p):\n    return bcrypt.hashpw(p, bcrypt.gensalt())",
+            "export function computeBalance(entries) { return entries.length }",
+        ]
     )
 
     def cosine(a, b):
@@ -86,8 +88,10 @@ def test_reranker_puts_the_relevant_chunk_first(models):
     assert reason is None
     scores = reranker.score(
         "how does the payment client retry failed charges",
-        ["def charge(self, amount, attempts=3):\n    for attempt in range(attempts): retry",
-         "# Shopflow\nA small online shop."],  # fmt: skip
+        [
+            "def charge(self, amount, attempts=3):\n    for attempt in range(attempts): retry",
+            "# Shopflow\nA small online shop.",
+        ]
     )
     assert scores[0] > scores[1]
 

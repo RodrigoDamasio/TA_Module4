@@ -3,14 +3,21 @@
 How the backend's memory (RAM) was reduced so it can run on Railway's free plan, and what that
 costs. Measured on 2026-10-07.
 
-**Status:** measured locally, **not deployed yet**. Every change is an environment variable:
-no code was changed, and the defaults in [backend/app/config.py](backend/app/config.py) stay as
-they are for local work and tests.
+**Status:** deployed on 2026-10-07 with changes 1–5 ([backend/DEPLOY.md](backend/DEPLOY.md)).
+Every change is an environment variable: no code was changed, and the defaults in
+[backend/app/config.py](backend/app/config.py) stay as they are for local work and tests.
+
+> **Correction after the deploy.** This document was written for a **512 MB** limit, the figure
+> third-party pricing pages give for Railway's free plan. `railway metrics` shows **1,024 MB** (and
+> 2 vCPU) for the deployed service. The tuning is still needed, since the default settings peaked at
+> 1,145 MB, but there is much more headroom than §3 and §4 say: the deployed service peaked at
+> **393 MB** after all post-deploy checks.
 
 ## 1. The problem
 
-Railway's free plan gives each service **0.5 GB (512 MB) of RAM**. A service that goes over the
-limit is killed and restarted, and the request it was handling fails.
+Railway's free plan was assumed to give each service **0.5 GB (512 MB) of RAM** (the real limit
+turned out to be 1,024 MB, see the correction above). A service that goes over the limit is killed
+and restarted, and the request it was handling fails.
 
 The backend runs two local ONNX models (the `bge-small` embedder and the MS MARCO cross-encoder
 reranker), ChromaDB and an in-memory BM25 index. With the default settings it does not fit:

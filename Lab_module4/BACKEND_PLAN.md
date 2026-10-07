@@ -884,7 +884,7 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 - [ ] Lab requirements (§1) and the 4 extensions work
 - [ ] `pytest` green with **0** real calls. Coverage ≥ 90 %. Ruff (including `S`) clean. `pytest -m models` green
 - [ ] `EVALUATION.md`: comparison grid + full run + judge sanity, with targets met or misses explained
-- [ ] Deployed; V1–V9 pass; `DEPLOY.md` written from the steps actually run
+- [x] Deployed; V1–V9 pass; `DEPLOY.md` written from the steps actually run (V8 to repeat with the Vercel origin)
 - [ ] No secret in the repository, logs or history
 
 ## 17. Implementation notes (deviations from this plan)
@@ -905,4 +905,6 @@ Implemented in steps 1–9. Where the code differs from the plan above:
 | Production cache seeded from `eval/llm_cache.db` | `eval.run --publish` exports `samples/snapshot/llm_cache_seed.json.gz`, loaded at startup | `.railwayignore` excludes databases |
 | `/stats` "calls today" | In-memory counters (reset on restart) | The circuit breaker is the real quota guard; documented in the field description |
 | Search modes: `mode` required with a default | `mode` optional; `None` means `DEFAULT_MODE` | The default can change by config without breaking clients |
+| Deploy with both models, fallbacks only if memory is tight (§13) | Production runs **without the reranker** and with `ONNX_THREADS=1`, `EMBED_BATCH_SIZE=1`, `MALLOC_ARENA_MAX=2`, `MAX_USER_CODEBASES=3`. `hybrid_rerank` falls back to `hybrid` there | Measured locally: the default settings peaked at 1,145 MB, over the plan limit. The lean settings peaked at ~430 MB locally and 393 MB on Railway (limit 1,024 MB). See [MEMORY_TUNING.md](MEMORY_TUNING.md) and [backend/DEPLOY.md](backend/DEPLOY.md) |
+| Railway slot: free one of the two projects (§13) | The Module 2 project (`taller-code-analyzer`) was deleted, by the owner's choice | Free plan: 2 projects at most |
 

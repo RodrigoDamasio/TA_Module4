@@ -1,0 +1,2274 @@
+{
+    "kind": "full",
+    "created_at": "2026-10-06T00:26:57+00:00",
+    "config": {
+        "k": 5,
+        "mode": "hybrid",
+        "embedder": "BAAI/bge-small-en-v1.5",
+        "chunker_version": "2",
+        "prompt_version": "2",
+        "model": "gemini-3.5-flash-lite",
+        "max_calls": 20
+    },
+    "summary": {
+        "retrieval": {
+            "overall": {
+                "precision": 0.3,
+                "recall": 0.8148,
+                "mrr": 0.8028,
+                "hit": 1.0,
+                "ndcg": 0.7389,
+                "n": 18
+            },
+            "by_category": {
+                "conceptual": {
+                    "precision": 0.4,
+                    "recall": 0.9167,
+                    "mrr": 0.75,
+                    "hit": 1.0,
+                    "ndcg": 0.7379,
+                    "n": 4
+                },
+                "cross_codebase": {
+                    "precision": 0.2,
+                    "recall": 0.5,
+                    "mrr": 0.35,
+                    "hit": 1.0,
+                    "ndcg": 0.312,
+                    "n": 2
+                },
+                "location": {
+                    "precision": 0.3,
+                    "recall": 0.875,
+                    "mrr": 0.875,
+                    "hit": 1.0,
+                    "ndcg": 0.8266,
+                    "n": 4
+                },
+                "multi_file": {
+                    "precision": 0.2667,
+                    "recall": 0.5,
+                    "mrr": 0.75,
+                    "hit": 1.0,
+                    "ndcg": 0.4729,
+                    "n": 3
+                },
+                "symbol": {
+                    "precision": 0.28,
+                    "recall": 1.0,
+                    "mrr": 1.0,
+                    "hit": 1.0,
+                    "ndcg": 1.0,
+                    "n": 5
+                },
+                "unanswerable": {
+                    "precision": null,
+                    "recall": null,
+                    "mrr": null,
+                    "hit": null,
+                    "ndcg": null,
+                    "n": 0
+                }
+            }
+        },
+        "generation": {
+            "overall": {
+                "faithfulness": 5.0,
+                "relevance": 4.8889,
+                "correctness": 4.7222,
+                "n": 18
+            },
+            "by_category": {
+                "conceptual": {
+                    "faithfulness": 5.0,
+                    "relevance": 5.0,
+                    "correctness": 5.0,
+                    "n": 4
+                },
+                "cross_codebase": {
+                    "faithfulness": 5.0,
+                    "relevance": 4.5,
+                    "correctness": 4.0,
+                    "n": 2
+                },
+                "location": {
+                    "faithfulness": 5.0,
+                    "relevance": 5.0,
+                    "correctness": 4.75,
+                    "n": 4
+                },
+                "multi_file": {
+                    "faithfulness": 5.0,
+                    "relevance": 4.6667,
+                    "correctness": 4.3333,
+                    "n": 3
+                },
+                "symbol": {
+                    "faithfulness": 5.0,
+                    "relevance": 5.0,
+                    "correctness": 5.0,
+                    "n": 5
+                },
+                "unanswerable": {
+                    "faithfulness": null,
+                    "relevance": null,
+                    "correctness": null,
+                    "n": 0
+                }
+            }
+        },
+        "checks": {
+            "citations_valid": {
+                "passed": 20,
+                "total": 20
+            },
+            "found_matches": {
+                "passed": 19,
+                "total": 20
+            },
+            "mentions_ok": {
+                "passed": 14,
+                "total": 20
+            },
+            "no_forbidden": {
+                "passed": 20,
+                "total": 20
+            }
+        },
+        "judge_sanity": {
+            "passed": 4,
+            "total": 4
+        },
+        "skipped": [],
+        "latency_ms": {
+            "p50": 6.7,
+            "p95": 10.6
+        },
+        "calls": {
+            "real_calls": 4,
+            "cached_calls": 38
+        },
+        "n_examples": 20
+    },
+    "examples": [
+        {
+            "id": "s1",
+            "category": "symbol",
+            "question": "What does the processOrder function do?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "processOrder",
+                    "lines": [
+                        33,
+                        39
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "processOrder",
+                    "lines": [
+                        9,
+                        36
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Components, Architecture > Order flow",
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "OrderResult",
+                    "lines": [
+                        1,
+                        7
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "get_settings",
+                    "lines": [
+                        24,
+                        38
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/web/src/orders/processOrder.ts::processOrder",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "The `processOrder` function turns a cart into an order [2]. It validates the cart using `OrderRequestSchema` (Zod) before making any network calls [2]. If valid, it sends a `POST /orders` request with the user's bearer token [2]. On success, it empties the cart and returns the order ID and total [2]. If an error occurs, it maps API errors to user-facing reasons, such as 409 for out of stock and 402 for payment declined [2].",
+                "found": true,
+                "citations": [
+                    2
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the answer are directly supported by excerpt [2].",
+                "relevance": "The answer directly and comprehensively describes what the processOrder function does.",
+                "correctness": "The answer completely aligns with the reference answer regarding the function's behavior, validation, API call, and error handling."
+            }
+        },
+        {
+            "id": "s2",
+            "category": "symbol",
+            "question": "What does apply_discount do and which discount codes does it accept?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/service.py",
+                    "symbol": "apply_discount",
+                    "lines": [
+                        1,
+                        26
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/service.py",
+                    "symbol": "OrderService.place_order",
+                    "lines": [
+                        36,
+                        57
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/models.py",
+                    "symbol": "Order, OrderItem",
+                    "lines": [
+                        28,
+                        46
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "web/src/cart/cart.ts",
+                    "symbol": "Cart",
+                    "lines": [
+                        1,
+                        35
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/schemas.ts",
+                    "symbol": "CartItemSchema, OrderRequestSchema, CartItem, OrderRequest",
+                    "lines": [
+                        1,
+                        17
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/orders/service.py::apply_discount",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "The function `apply_discount` applies a discount code to a subtotal along with a shipping fee of 5.00, ensuring the result is never negative and is rounded to cents [1]. It accepts the discount codes `WELCOME10` (which takes 10% off the subtotal) and `FREESHIP` (which removes the 5.00 shipping fee); any other code is ignored [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the answer are directly supported by the provided excerpts.",
+                "relevance": "The answer directly addresses what apply_discount does and lists the accepted discount codes.",
+                "correctness": "The answer fully agrees with the reference answer and accurately describes the discount logic."
+            }
+        },
+        {
+            "id": "s3",
+            "category": "symbol",
+            "question": "How does PaymentClient.charge handle failures and retries?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient.charge",
+                    "lines": [
+                        25,
+                        49
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient.charge",
+                    "lines": [
+                        47,
+                        50
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient.refund",
+                    "lines": [
+                        52,
+                        56
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient, PaymentClient.__init__",
+                    "lines": [
+                        17,
+                        23
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentError",
+                    "lines": [
+                        1,
+                        14
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/payments/client.py::PaymentClient.charge",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "PaymentClient.charge uses an idempotency key to safely retry network errors and 5xx responses up to a given number of attempts (default 3) with exponential backoff (0.5s, 1s, etc.) [1]. A 402 error (card declined) is not retried and immediately raises a PaymentError [1]. If transport errors persist on the final attempt, it raises a PaymentError (\"Payment gateway unreachable\"), and if other error responses persist, it ultimately raises a PaymentError (\"Payment gateway error\") [1, 2].",
+                "found": true,
+                "citations": [
+                    1,
+                    2
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the answer are directly supported by the provided code excerpts.",
+                "relevance": "The answer directly and thoroughly addresses how PaymentClient.charge handles failures and retries.",
+                "correctness": "The answer is completely accurate, agreeing with all details in the reference answer regarding retries, backoff, idempotency, and error handling."
+            }
+        },
+        {
+            "id": "s4",
+            "category": "symbol",
+            "question": "What does computeBalance return?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "ledger",
+                    "path": "src/balance.ts",
+                    "symbol": "Balance, computeBalance",
+                    "lines": [
+                        1,
+                        21
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "ledger",
+                    "path": "src/index.ts",
+                    "symbol": null,
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "ledger",
+                    "path": "worker/reconcile.py",
+                    "symbol": "reconcile_entries",
+                    "lines": [
+                        19,
+                        48
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "ledger",
+                    "path": "README.md",
+                    "symbol": "Ledger > Running, Ledger > Money",
+                    "lines": [
+                        1,
+                        15
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "ledger",
+                    "path": "worker/reconcile.py",
+                    "symbol": "fetch_entries",
+                    "lines": [
+                        1,
+                        16
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "ledger/src/balance.ts::computeBalance",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "computeBalance returns a `Balance` object containing the account name or null, the balance in integer cents, and the counts of credit and debit entries [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "balanceCents"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims are directly supported by excerpt [1].",
+                "relevance": "The answer directly and concisely describes what computeBalance returns.",
+                "correctness": "The answer fully matches the reference answer's description of the returned Balance object."
+            }
+        },
+        {
+            "id": "s5",
+            "category": "symbol",
+            "question": "What does the Cart applyCoupon method do?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/cart/cart.ts",
+                    "symbol": "Cart",
+                    "lines": [
+                        1,
+                        35
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "processOrder",
+                    "lines": [
+                        9,
+                        36
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/components/CheckoutButton.tsx",
+                    "symbol": "CheckoutButton",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/schemas.ts",
+                    "symbol": "CartItemSchema, OrderRequestSchema, CartItem, OrderRequest",
+                    "lines": [
+                        1,
+                        17
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Components, Architecture > Order flow",
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/web/src/cart/cart.ts::Cart.applyCoupon",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "The `Cart.applyCoupon` method remembers a coupon code for checkout by trimming whitespace and converting the code to uppercase, or setting it to `null` if the trimmed string is empty [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the answer are directly supported by excerpt [1].",
+                "relevance": "The answer directly explains what the Cart.applyCoupon method does.",
+                "correctness": "The answer accurately describes the behavior of the applyCoupon method matching the reference answer."
+            }
+        },
+        {
+            "id": "c1",
+            "category": "conceptual",
+            "question": "How does authentication work?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Authentication",
+                    "lines": [
+                        21,
+                        25
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/service.py",
+                    "symbol": "AuthService",
+                    "lines": [
+                        13,
+                        32
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/security.py",
+                    "symbol": "hash_password, verify_password, create_access_token",
+                    "lines": [
+                        1,
+                        26
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/routes.py",
+                    "symbol": "Credentials, register, login, me",
+                    "lines": [
+                        31,
+                        37
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/auth/service.py::AuthService.login",
+                    "first_rank": 2
+                },
+                {
+                    "target": "shopflow/backend/app/auth/security.py::create_access_token",
+                    "first_rank": 3
+                },
+                {
+                    "target": "shopflow/backend/app/auth/dependencies.py::get_current_user",
+                    "first_rank": null
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 0.6666666666666666,
+                "mrr": 0.5,
+                "hit": 1.0,
+                "ndcg": 0.5307212739772434
+            },
+            "answer": {
+                "text": "Users authenticate by logging in with their email and password [1]. Passwords are hashed using bcrypt [1, 3] in `AuthService.register` [2]. A successful login via `AuthService.login` verifies credentials and returns a signed JWT access token (`create_access_token`) [1, 2, 3]. Protected routes read this token from the `Authorization: Bearer` header using the `get_current_user` dependency [1]. On the frontend, the `AuthProvider` stores the access token in `localStorage` [5].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3,
+                    5
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "Every claim in the answer is directly supported by the provided excerpts.",
+                "relevance": "The answer directly and comprehensively addresses how authentication works.",
+                "correctness": "The answer accurately describes the authentication flow and matches the reference answer well."
+            }
+        },
+        {
+            "id": "c2",
+            "category": "conceptual",
+            "question": "How are user passwords stored?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Authentication",
+                    "lines": [
+                        21,
+                        25
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/security.py",
+                    "symbol": "hash_password, verify_password, create_access_token",
+                    "lines": [
+                        1,
+                        26
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/service.py",
+                    "symbol": "AuthService",
+                    "lines": [
+                        13,
+                        32
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/routes.py",
+                    "symbol": "Credentials, register, login, me",
+                    "lines": [
+                        31,
+                        37
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/auth/security.py::hash_password",
+                    "first_rank": 2
+                },
+                {
+                    "target": "shopflow/backend/app/auth/service.py::AuthService.register",
+                    "first_rank": 3
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 0.5,
+                "hit": 1.0,
+                "ndcg": 0.6934264036172708
+            },
+            "answer": {
+                "text": "User passwords are stored as hashes generated using bcrypt with a random salt and a cost factor of 12 [1, 2, 3].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims regarding bcrypt, random salt, and cost factor 12 are directly supported by the retrieved excerpts.",
+                "relevance": "The answer directly and concisely addresses how user passwords are stored.",
+                "correctness": "The answer is fully correct and aligns with the reference answer regarding password hashing mechanisms."
+            }
+        },
+        {
+            "id": "c3",
+            "category": "conceptual",
+            "question": "What happens when there is not enough stock for an order?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/inventory/stock.py",
+                    "symbol": "LowStockError, reserve_stock",
+                    "lines": [
+                        1,
+                        27
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/service.py",
+                    "symbol": "OrderService.cancel_order",
+                    "lines": [
+                        59,
+                        67
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/service.py",
+                    "symbol": "OrderService.place_order",
+                    "lines": [
+                        36,
+                        57
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "create_order, get_order",
+                    "lines": [
+                        34,
+                        58
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/inventory/stock.py",
+                    "symbol": "release_stock",
+                    "lines": [
+                        30,
+                        36
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/inventory/stock.py::reserve_stock",
+                    "first_rank": 1
+                },
+                {
+                    "target": "shopflow/backend/app/orders/routes.py::create_order",
+                    "first_rank": 4
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 0.8772153153380493
+            },
+            "answer": {
+                "text": "When there is not enough stock for an order, `reserve_stock` releases everything reserved so far and raises a `LowStockError` naming the SKU [1]. When creating an order via the API, this raises an HTTP 409 conflict exception [4].",
+                "found": true,
+                "citations": [
+                    1,
+                    4
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the answer are directly supported by the provided excerpts.",
+                "relevance": "The answer directly and comprehensively addresses what happens when there is not enough stock for an order.",
+                "correctness": "The answer accurately describes the backend behavior (releasing reserved stock and raising LowStockError leading to an HTTP 409) matching the reference answer."
+            }
+        },
+        {
+            "id": "c4",
+            "category": "conceptual",
+            "question": "How does the worker reconcile ledger entries with the bank statement?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "ledger",
+                    "path": "worker/reconcile.py",
+                    "symbol": "reconcile_entries",
+                    "lines": [
+                        19,
+                        48
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "ledger",
+                    "path": "worker/reconcile.py",
+                    "symbol": "fetch_entries",
+                    "lines": [
+                        1,
+                        16
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "ledger",
+                    "path": "README.md",
+                    "symbol": "Ledger > Running, Ledger > Money",
+                    "lines": [
+                        1,
+                        15
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "ledger",
+                    "path": "src/entries.ts",
+                    "symbol": "EntrySchema, Entry, createEntry, listEntries",
+                    "lines": [
+                        1,
+                        25
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "ledger",
+                    "path": "worker/bank_csv.py",
+                    "symbol": "BankLine, parse_bank_statement",
+                    "lines": [
+                        1,
+                        22
+                    ],
+                    "relevant": true
+                }
+            ],
+            "targets": [
+                {
+                    "target": "ledger/worker/reconcile.py::reconcile_entries",
+                    "first_rank": 1
+                },
+                {
+                    "target": "ledger/worker/bank_csv.py::parse_bank_statement",
+                    "first_rank": 5
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 0.8503449055347546
+            },
+            "answer": {
+                "text": "The worker reconciles ledger entries with the bank statement by matching ledger entries to bank lines based on the amount in cents and the reference matching the description (`b.amount_cents == entry[\"amountCents\"] and b.reference == entry[\"description\"]`) [1]. Each bank line can match at most one entry [1]. The reconciliation returns entries missing in the bank and bank lines missing in the ledger [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "missing_in_bank"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims are directly supported by the provided code excerpts.",
+                "relevance": "The answer directly and comprehensively addresses how the worker reconciles ledger entries with the bank statement.",
+                "correctness": "The answer accurately describes the reconciliation logic and matches the ground truth."
+            }
+        },
+        {
+            "id": "l1",
+            "category": "location",
+            "question": "Where is the database connection configured?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "get_settings",
+                    "lines": [
+                        24,
+                        38
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "Settings",
+                    "lines": [
+                        1,
+                        21
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/db.py",
+                    "symbol": "create_db_engine, get_session",
+                    "lines": [
+                        1,
+                        36
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/models.py",
+                    "symbol": "Base, OrderStatus, User",
+                    "lines": [
+                        1,
+                        25
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "README.md",
+                    "symbol": "Shopflow, Shopflow > Setup, Shopflow > Configuration",
+                    "lines": [
+                        1,
+                        27
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/config.py::get_settings",
+                    "first_rank": 1
+                },
+                {
+                    "target": "shopflow/backend/app/db.py::create_db_engine",
+                    "first_rank": 3
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 0.9197207891481876
+            },
+            "answer": {
+                "text": "The database connection is configured in `shopflow/backend/app/db.py`, where `create_db_engine()` uses `DATABASE_URL` and `DB_POOL_SIZE` from settings to create the SQLAlchemy engine [3]. The settings themselves are defined in `shopflow/backend/app/config.py` [1, 2].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims about where the database connection is configured and where settings are defined are directly supported by the provided excerpts.",
+                "relevance": "The answer directly and accurately addresses where the database connection is configured.",
+                "correctness": "The answer correctly identifies both config.py and db.py as the locations for configuration and engine creation, matching the reference answer."
+            }
+        },
+        {
+            "id": "l2",
+            "category": "location",
+            "question": "Where is the JWT secret set and how long do access tokens last?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/security.py",
+                    "symbol": "decode_access_token",
+                    "lines": [
+                        29,
+                        34
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/security.py",
+                    "symbol": "hash_password, verify_password, create_access_token",
+                    "lines": [
+                        1,
+                        26
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Authentication",
+                    "lines": [
+                        21,
+                        25
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/service.py",
+                    "symbol": "AuthService",
+                    "lines": [
+                        13,
+                        32
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/config.py::get_settings",
+                    "first_rank": null
+                },
+                {
+                    "target": "shopflow/backend/app/auth/security.py::create_access_token",
+                    "first_rank": 2
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "mrr": 0.5,
+                "hit": 1.0,
+                "ndcg": 0.38685280723454163
+            },
+            "answer": {
+                "text": "The JWT secret is set via settings.jwt_secret [1, 2], and tokens are signed with `JWT_SECRET` [3]. Access tokens last for a duration defined by `JWT_TTL_MINUTES` [2].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "60"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 4
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims made in the answer are directly supported by the provided excerpts.",
+                "relevance": "The answer directly addresses both parts of the question regarding where the secret is set and how long tokens last.",
+                "correctness": "The answer correctly identifies that the secret is used via settings/JWT_SECRET and that tokens last according to JWT_TTL_MINUTES, though it doesn't explicitly mention the config.py environment variable file like the reference answer."
+            }
+        },
+        {
+            "id": "l3",
+            "category": "location",
+            "question": "Where does the web client get the API base URL from?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/api/client.ts",
+                    "symbol": "ApiError, apiBaseUrl, apiFetch",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient, PaymentClient.__init__",
+                    "lines": [
+                        17,
+                        23
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthState",
+                    "lines": [
+                        1,
+                        11
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/routes.py",
+                    "symbol": "Credentials, register, login, me",
+                    "lines": [
+                        1,
+                        35
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/web/src/api/client.ts::apiBaseUrl",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "The web client gets the API base URL from `VITE_API_BASE_URL`, defaulting to `http://localhost:8000` if it is not set [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims are directly supported by excerpt [1].",
+                "relevance": "The answer directly and concisely addresses where the web client gets the API base URL.",
+                "correctness": "The answer matches the reference answer in identifying VITE_API_BASE_URL and the fallback."
+            }
+        },
+        {
+            "id": "l4",
+            "category": "location",
+            "question": "Where are the SMTP settings for order confirmation emails configured?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/notifications/email.py",
+                    "symbol": "send_order_confirmation",
+                    "lines": [
+                        1,
+                        22
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "get_settings",
+                    "lines": [
+                        24,
+                        38
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "Settings",
+                    "lines": [
+                        1,
+                        21
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Components, Architecture > Order flow",
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "create_order, get_order",
+                    "lines": [
+                        34,
+                        58
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/config.py::get_settings",
+                    "first_rank": 2
+                },
+                {
+                    "target": "shopflow/backend/app/notifications/email.py::send_order_confirmation",
+                    "first_rank": 1
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 1.0,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 1.0
+            },
+            "answer": {
+                "text": "SMTP settings for order confirmation emails are configured via environment variables read by `shopflow/backend/app/config.py` in `get_settings` [2]. Specifically, `smtp_host` defaults to `localhost`, `smtp_port` defaults to `25`, and `mail_from` defaults to `orders@shopflow.example` [2]. These settings are used when sending emails through `shopflow/backend/app/notifications/email.py` [1].",
+                "found": true,
+                "citations": [
+                    1,
+                    2
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims are directly supported by the provided excerpts.",
+                "relevance": "The answer directly addresses where the SMTP settings are configured.",
+                "correctness": "The answer is fully correct and aligns with the reference answer."
+            }
+        },
+        {
+            "id": "m1",
+            "category": "multi_file",
+            "question": "How do the order service and the payment client interact?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Components, Architecture > Order flow",
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/service.py",
+                    "symbol": "OrderService, OrderService.__init__",
+                    "lines": [
+                        29,
+                        34
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "Item, OrderRequest, order_service",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/payments/client.py",
+                    "symbol": "PaymentClient.charge",
+                    "lines": [
+                        47,
+                        50
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "create_order, get_order",
+                    "lines": [
+                        34,
+                        58
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/orders/service.py::OrderService.place_order",
+                    "first_rank": null
+                },
+                {
+                    "target": "shopflow/backend/app/payments/client.py::PaymentClient.charge",
+                    "first_rank": 4
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "mrr": 0.25,
+                "hit": 1.0,
+                "ndcg": 0.2640681225725909
+            },
+            "answer": {
+                "text": "The order service (`OrderService`) interacts with the payment client (`PaymentClient`) by using it to charge the customer's card during the order placement process [1]. `OrderService` is initialized with an instance of `PaymentClient` [2, 3], and its `place_order` method calls `PaymentClient.charge` [1]. If the charge fails, the order is marked as `payment_failed` and stock is released [1].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "PaymentError"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 4
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims made in the answer are directly supported by the provided excerpts.",
+                "relevance": "The answer directly addresses how the order service and payment client interact.",
+                "correctness": "It correctly identifies initialization and the charge interaction, though it misses some details about cancel_order found in the reference answer due to excerpt limitations."
+            }
+        },
+        {
+            "id": "m2",
+            "category": "multi_file",
+            "question": "What happens end to end when a user clicks the checkout button?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/components/CheckoutButton.tsx",
+                    "symbol": "CheckoutButton",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "docs/ARCHITECTURE.md",
+                    "symbol": "Architecture > Components, Architecture > Order flow",
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/cart/cart.ts",
+                    "symbol": "Cart",
+                    "lines": [
+                        1,
+                        35
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "cancel_order",
+                    "lines": [
+                        61,
+                        70
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/orders/routes.py",
+                    "symbol": "create_order, get_order",
+                    "lines": [
+                        34,
+                        58
+                    ],
+                    "relevant": true
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/web/src/components/CheckoutButton.tsx::CheckoutButton",
+                    "first_rank": 1
+                },
+                {
+                    "target": "shopflow/web/src/orders/processOrder.ts::processOrder",
+                    "first_rank": null
+                },
+                {
+                    "target": "shopflow/backend/app/orders/routes.py::create_order",
+                    "first_rank": 5
+                },
+                {
+                    "target": "shopflow/backend/app/orders/service.py::OrderService.place_order",
+                    "first_rank": null
+                }
+            ],
+            "metrics": {
+                "precision": 0.4,
+                "recall": 0.5,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 0.5413996682199069
+            },
+            "answer": {
+                "text": "When a customer clicks the Checkout button (`CheckoutButton`), several steps occur end-to-end:\n1. The `checkout` function checks if the user has a valid authentication token; if not, it displays \"Please log in first.\" [1]\n2. If logged in, it sets the button to a busy state and calls `processOrder`, which validates the cart using Zod and sends a `POST /orders` request with the bearer token [1, 2].\n3. The backend `create_order` route calls `OrderService.place_order` [2, 5].\n4. `place_order` reserves stock, applies any discount code, and charges the card using `PaymentClient.charge` [2]. If the charge fails, stock is released and the order is marked `payment_failed` [2], raising a 402 payment declined error [5]. Low stock raises a 409 error [5].\n5. On success, the order is saved as `paid`, a confirmation email is sent [2], and the outcome is displayed to the user in the web component [1].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    5
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims in the generated answer are fully supported by the provided excerpts.",
+                "relevance": "The answer directly and comprehensively addresses what happens end-to-end when the user clicks the checkout button.",
+                "correctness": "The answer completely aligns with the reference answer and includes accurate technical details from the code and documentation."
+            }
+        },
+        {
+            "id": "m3",
+            "category": "multi_file",
+            "question": "How does the web app send the login token with API requests?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthState",
+                    "lines": [
+                        1,
+                        11
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/routes.py",
+                    "symbol": "Credentials, register, login, me",
+                    "lines": [
+                        31,
+                        37
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/routes.py",
+                    "symbol": "Credentials, register, login, me",
+                    "lines": [
+                        1,
+                        35
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/app/auth/service.py",
+                    "symbol": "AuthService",
+                    "lines": [
+                        13,
+                        32
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/web/src/auth/AuthContext.tsx::AuthProvider",
+                    "first_rank": 1
+                },
+                {
+                    "target": "shopflow/web/src/api/client.ts::apiFetch",
+                    "first_rank": null
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "mrr": 1.0,
+                "hit": 1.0,
+                "ndcg": 0.6131471927654584
+            },
+            "answer": {
+                "text": "The web app persists the access token in localStorage and it is passed to apiFetch by callers [1].",
+                "found": true,
+                "citations": [
+                    1
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "Authorization"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 4,
+                "correctness": 4
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims made in the answer are directly supported by excerpt [1].",
+                "relevance": "It addresses how the token is stored and passed to apiFetch, though it misses mentioning the Authorization header specifically.",
+                "correctness": "It correctly identifies localStorage usage and passing to apiFetch, but omits the detail about the Authorization Bearer header."
+            }
+        },
+        {
+            "id": "x1",
+            "category": "cross_codebase",
+            "question": "Which web framework does each project use for its HTTP API?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/api/client.ts",
+                    "symbol": "ApiError, apiBaseUrl, apiFetch",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthState",
+                    "lines": [
+                        1,
+                        11
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "ledger",
+                    "path": "src/auth.ts",
+                    "symbol": "requireApiKey",
+                    "lines": [
+                        1,
+                        17
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "ledger",
+                    "path": "src/index.ts",
+                    "symbol": null,
+                    "lines": [
+                        1,
+                        20
+                    ],
+                    "relevant": true
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/main.py",
+                    "first_rank": null
+                },
+                {
+                    "target": "ledger/src/index.ts",
+                    "first_rank": 5
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "mrr": 0.2,
+                "hit": 1.0,
+                "ndcg": 0.23719771276929622
+            },
+            "answer": {
+                "text": "The ledger project uses Hono for its HTTP API [5]. The provided excerpts do not specify which web framework the shopflow project uses for its HTTP API [1, 2, 3].",
+                "found": false,
+                "citations": [
+                    1,
+                    2,
+                    3,
+                    5
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": false,
+                "mentions_ok": false,
+                "no_forbidden": true
+            },
+            "missing_mentions": [
+                "FastAPI"
+            ],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 4,
+                "correctness": 3
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims made in the answer are strictly supported by the provided excerpts.",
+                "relevance": "The answer directly addresses the question for Ledger using the excerpts, though it could not answer for Shopflow due to missing excerpts.",
+                "correctness": "The answer correctly identifies Hono for Ledger, but fails to identify FastAPI for Shopflow because the retrieved excerpts lacked that information."
+            }
+        },
+        {
+            "id": "x2",
+            "category": "cross_codebase",
+            "question": "How do shopflow and ledger authenticate API requests?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "ledger",
+                    "path": "README.md",
+                    "symbol": "Ledger > Running, Ledger > Money",
+                    "lines": [
+                        1,
+                        15
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "ledger",
+                    "path": "src/auth.ts",
+                    "symbol": "requireApiKey",
+                    "lines": [
+                        1,
+                        17
+                    ],
+                    "relevant": true
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "README.md",
+                    "symbol": "Shopflow, Shopflow > Setup, Shopflow > Configuration",
+                    "lines": [
+                        1,
+                        27
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "web/src/api/client.ts",
+                    "symbol": "ApiError, apiBaseUrl, apiFetch",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "ledger",
+                    "path": "worker/reconcile.py",
+                    "symbol": "fetch_entries",
+                    "lines": [
+                        1,
+                        16
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [
+                {
+                    "target": "shopflow/backend/app/auth/dependencies.py::get_current_user",
+                    "first_rank": null
+                },
+                {
+                    "target": "ledger/src/auth.ts::requireApiKey",
+                    "first_rank": 2
+                }
+            ],
+            "metrics": {
+                "precision": 0.2,
+                "recall": 0.5,
+                "mrr": 0.5,
+                "hit": 1.0,
+                "ndcg": 0.38685280723454163
+            },
+            "answer": {
+                "text": "Ledger authenticates API requests by requiring an `x-api-key` header, which is validated against a set of keys listed in `LEDGER_API_KEYS` [1, 2]. Shopflow authenticates API requests by sending an access token as a bearer token in the `Authorization` header (`Authorization: Bearer <token>`) [4], which are signed using `JWT_SECRET` [3].",
+                "found": true,
+                "citations": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": [],
+            "judge_scores": {
+                "faithfulness": 5,
+                "relevance": 5,
+                "correctness": 5
+            },
+            "judge_reasons": {
+                "faithfulness": "All claims made in the answer are directly supported by the provided excerpts.",
+                "relevance": "The answer directly and clearly explains how both ledger and shopflow authenticate API requests.",
+                "correctness": "The answer is fully correct and aligns completely with the reference answer."
+            }
+        },
+        {
+            "id": "u1",
+            "category": "unanswerable",
+            "question": "How is Redis caching configured?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "get_settings",
+                    "lines": [
+                        24,
+                        38
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "backend/app/config.py",
+                    "symbol": "Settings",
+                    "lines": [
+                        1,
+                        21
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/auth/AuthContext.tsx",
+                    "symbol": "AuthProvider, useAuth",
+                    "lines": [
+                        13,
+                        41
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/db.py",
+                    "symbol": "create_db_engine, get_session",
+                    "lines": [
+                        1,
+                        36
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "backend/requirements.txt",
+                    "symbol": null,
+                    "lines": [
+                        1,
+                        6
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [],
+            "answer": {
+                "text": "The provided code excerpts do not contain any information about how Redis caching is configured.",
+                "found": false,
+                "citations": [],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": []
+        },
+        {
+            "id": "u2",
+            "category": "unanswerable",
+            "question": "Which GraphQL resolvers does the API expose?",
+            "retrieved": [
+                {
+                    "rank": 1,
+                    "codebase": "shopflow",
+                    "path": "web/src/api/client.ts",
+                    "symbol": "ApiError, apiBaseUrl, apiFetch",
+                    "lines": [
+                        1,
+                        31
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 2,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "OrderResult",
+                    "lines": [
+                        1,
+                        7
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 3,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "processOrder",
+                    "lines": [
+                        33,
+                        39
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 4,
+                    "codebase": "shopflow",
+                    "path": "backend/app/main.py",
+                    "symbol": "create_tables, health",
+                    "lines": [
+                        1,
+                        23
+                    ],
+                    "relevant": false
+                },
+                {
+                    "rank": 5,
+                    "codebase": "shopflow",
+                    "path": "web/src/orders/processOrder.ts",
+                    "symbol": "processOrder",
+                    "lines": [
+                        9,
+                        36
+                    ],
+                    "relevant": false
+                }
+            ],
+            "targets": [],
+            "answer": {
+                "text": "The provided code excerpts do not contain any information about GraphQL resolvers; the application uses a FastAPI REST backend with routers for auth and orders [4].",
+                "found": false,
+                "citations": [
+                    4
+                ],
+                "grounded": true,
+                "cached": true
+            },
+            "checks": {
+                "citations_valid": true,
+                "found_matches": true,
+                "mentions_ok": true,
+                "no_forbidden": true
+            },
+            "missing_mentions": []
+        }
+    ],
+    "judge_sanity": [
+        {
+            "id": "bad_wrong_function",
+            "kind": "wrong function described",
+            "example": "s1",
+            "scores": {
+                "faithfulness": 1,
+                "relevance": 2,
+                "correctness": 1
+            },
+            "passed": true,
+            "lenient_on": []
+        },
+        {
+            "id": "bad_invented_config",
+            "kind": "invented configuration file",
+            "example": "l1",
+            "scores": {
+                "faithfulness": 1,
+                "relevance": 5,
+                "correctness": 1
+            },
+            "passed": true,
+            "lenient_on": []
+        },
+        {
+            "id": "bad_unsupported_claim",
+            "kind": "correct answer plus an unsupported claim",
+            "example": "c2",
+            "scores": {
+                "faithfulness": 1,
+                "relevance": 5,
+                "correctness": 1
+            },
+            "passed": true,
+            "lenient_on": []
+        },
+        {
+            "id": "bad_off_topic",
+            "kind": "off-topic",
+            "example": "s4",
+            "scores": {
+                "faithfulness": 1,
+                "relevance": 1,
+                "correctness": 1
+            },
+            "passed": true,
+            "lenient_on": []
+        }
+    ],
+    "id": "full"
+}

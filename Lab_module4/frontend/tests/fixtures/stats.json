@@ -1,0 +1,54 @@
+{
+    "window": "last 3 requests (max 500)",
+    "requests": {
+        "search": 1,
+        "query": 2
+    },
+    "latency_ms": {
+        "total": {
+            "p50": 11.3,
+            "p95": 20.3
+        },
+        "embed_query": {
+            "p50": 2.6,
+            "p95": 5.0
+        },
+        "vector_search": {
+            "p50": 3.8,
+            "p95": 3.8
+        },
+        "bm25": {
+            "p50": 0.1,
+            "p95": 0.1
+        },
+        "fuse": {
+            "p50": 0.1,
+            "p95": 0.1
+        },
+        "generate": {
+            "p50": 2.6,
+            "p95": 4.7
+        }
+    },
+    "llm": {
+        "calls_today": 43,
+        "cached_today": 1,
+        "cache_hit_rate": 0.023,
+        "daily_limit": 1000,
+        "left_today": 957,
+        "input_tokens": 51164,
+        "output_tokens": 2580,
+        "paid_equivalent_usd": 0.006148
+    },
+    "index": {
+        "codebases": 3,
+        "chunks": 54,
+        "files": 33,
+        "embeddings_cached": 76,
+        "embedding_cache_hit_rate": 0.248
+    },
+    "quota": {
+        "circuit": "closed",
+        "mode": "fake"
+    }
+}

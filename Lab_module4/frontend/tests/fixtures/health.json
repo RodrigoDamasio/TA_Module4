@@ -1,0 +1,6 @@
+{
+    "status": "ok",
+    "models": "ready",
+    "reranker": "disabled",
+    "samples": "embedded"
+}

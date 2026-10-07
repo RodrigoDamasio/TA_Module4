@@ -1,0 +1,88 @@
+{
+    "limits": {
+        "max_files_per_request": 50,
+        "max_bytes_per_request": 500000,
+        "max_files_per_codebase": 200,
+        "max_bytes_per_codebase": 1000000,
+        "max_user_codebases": 10,
+        "codebase_ttl_hours": 24,
+        "max_k": 10,
+        "question_max_chars": 500,
+        "max_path_chars": 200,
+        "minified_line_chars": 1000,
+        "max_custom_examples": 30
+    },
+    "files": {
+        "extensions": [
+            ".cfg",
+            ".cjs",
+            ".ini",
+            ".js",
+            ".json",
+            ".jsx",
+            ".md",
+            ".mjs",
+            ".py",
+            ".pyi",
+            ".toml",
+            ".ts",
+            ".tsx",
+            ".txt",
+            ".yaml",
+            ".yml"
+        ],
+        "extra_names": [
+            ".env.example"
+        ],
+        "skipped_dirs": [
+            ".git",
+            ".next",
+            ".venv",
+            "__pycache__",
+            "build",
+            "dist",
+            "node_modules",
+            "venv"
+        ],
+        "lockfiles": [
+            "Pipfile.lock",
+            "package-lock.json",
+            "pnpm-lock.yaml",
+            "poetry.lock",
+            "uv.lock",
+            "yarn.lock"
+        ],
+        "codebase_id_pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
+    },
+    "defaults": {
+        "k": 5,
+        "mode": "hybrid"
+    },
+    "modes": [
+        {
+            "id": "vector",
+            "available": true,
+            "reason": null
+        },
+        {
+            "id": "bm25",
+            "available": true,
+            "reason": null
+        },
+        {
+            "id": "hybrid",
+            "available": true,
+            "reason": null
+        },
+        {
+            "id": "hybrid_rerank",
+            "available": false,
+            "reason": "The reranker is disabled on this server; this mode runs as hybrid."
+        }
+    ],
+    "pipeline_debug": true,
+    "rate_limits": {
+        "query_per_minute": 10,
+        "query_per_day": 50
+    }
+}

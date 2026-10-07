@@ -1,0 +1,203 @@
+{
+    "id": "shopflow",
+    "kind": "sample",
+    "read_only": true,
+    "file_count": 23,
+    "chunk_count": 43,
+    "bytes": 28285,
+    "languages": {
+        "markdown": 4,
+        "python": 28,
+        "text": 2,
+        "typescript": 9
+    },
+    "created_at": "2026-10-07T17:37:24+00:00",
+    "updated_at": "2026-10-07T17:37:25+00:00",
+    "expires_at": null,
+    "files": [
+        {
+            "path": "README.md",
+            "language": "markdown",
+            "chunk_count": 2,
+            "bytes": 1226,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/auth/dependencies.py",
+            "language": "python",
+            "chunk_count": 1,
+            "bytes": 948,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/auth/routes.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1117,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/auth/security.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1288,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/auth/service.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1171,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/config.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1239,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/db.py",
+            "language": "python",
+            "chunk_count": 1,
+            "bytes": 1080,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/inventory/stock.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1396,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/main.py",
+            "language": "python",
+            "chunk_count": 1,
+            "bytes": 692,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/notifications/email.py",
+            "language": "python",
+            "chunk_count": 1,
+            "bytes": 794,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/orders/models.py",
+            "language": "python",
+            "chunk_count": 2,
+            "bytes": 1579,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:24+00:00"
+        },
+        {
+            "path": "backend/app/orders/routes.py",
+            "language": "python",
+            "chunk_count": 3,
+            "bytes": 2374,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "backend/app/orders/service.py",
+            "language": "python",
+            "chunk_count": 4,
+            "bytes": 2816,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "backend/app/payments/client.py",
+            "language": "python",
+            "chunk_count": 5,
+            "bytes": 2319,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "backend/requirements.txt",
+            "language": "text",
+            "chunk_count": 1,
+            "bytes": 93,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "docs/ARCHITECTURE.md",
+            "language": "markdown",
+            "chunk_count": 2,
+            "bytes": 1211,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/package.json",
+            "language": "text",
+            "chunk_count": 1,
+            "bytes": 237,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/api/client.ts",
+            "language": "typescript",
+            "chunk_count": 1,
+            "bytes": 1133,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/auth/AuthContext.tsx",
+            "language": "typescript",
+            "chunk_count": 2,
+            "bytes": 1374,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/cart/cart.ts",
+            "language": "typescript",
+            "chunk_count": 1,
+            "bytes": 993,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/components/CheckoutButton.tsx",
+            "language": "typescript",
+            "chunk_count": 1,
+            "bytes": 1010,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/orders/processOrder.ts",
+            "language": "typescript",
+            "chunk_count": 3,
+            "bytes": 1627,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        },
+        {
+            "path": "web/src/orders/schemas.ts",
+            "language": "typescript",
+            "chunk_count": 1,
+            "bytes": 568,
+            "fallback": false,
+            "indexed_at": "2026-10-07T17:37:25+00:00"
+        }
+    ]
+}

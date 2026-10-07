@@ -1,0 +1,382 @@
+[
+    {
+        "id": "full",
+        "kind": "full",
+        "created_at": "2026-10-06T00:26:57+00:00",
+        "summary": {
+            "retrieval": {
+                "overall": {
+                    "precision": 0.3,
+                    "recall": 0.8148,
+                    "mrr": 0.8028,
+                    "hit": 1.0,
+                    "ndcg": 0.7389,
+                    "n": 18
+                },
+                "by_category": {
+                    "conceptual": {
+                        "precision": 0.4,
+                        "recall": 0.9167,
+                        "mrr": 0.75,
+                        "hit": 1.0,
+                        "ndcg": 0.7379,
+                        "n": 4
+                    },
+                    "cross_codebase": {
+                        "precision": 0.2,
+                        "recall": 0.5,
+                        "mrr": 0.35,
+                        "hit": 1.0,
+                        "ndcg": 0.312,
+                        "n": 2
+                    },
+                    "location": {
+                        "precision": 0.3,
+                        "recall": 0.875,
+                        "mrr": 0.875,
+                        "hit": 1.0,
+                        "ndcg": 0.8266,
+                        "n": 4
+                    },
+                    "multi_file": {
+                        "precision": 0.2667,
+                        "recall": 0.5,
+                        "mrr": 0.75,
+                        "hit": 1.0,
+                        "ndcg": 0.4729,
+                        "n": 3
+                    },
+                    "symbol": {
+                        "precision": 0.28,
+                        "recall": 1.0,
+                        "mrr": 1.0,
+                        "hit": 1.0,
+                        "ndcg": 1.0,
+                        "n": 5
+                    },
+                    "unanswerable": {
+                        "precision": null,
+                        "recall": null,
+                        "mrr": null,
+                        "hit": null,
+                        "ndcg": null,
+                        "n": 0
+                    }
+                }
+            },
+            "generation": {
+                "overall": {
+                    "faithfulness": 5.0,
+                    "relevance": 4.8889,
+                    "correctness": 4.7222,
+                    "n": 18
+                },
+                "by_category": {
+                    "conceptual": {
+                        "faithfulness": 5.0,
+                        "relevance": 5.0,
+                        "correctness": 5.0,
+                        "n": 4
+                    },
+                    "cross_codebase": {
+                        "faithfulness": 5.0,
+                        "relevance": 4.5,
+                        "correctness": 4.0,
+                        "n": 2
+                    },
+                    "location": {
+                        "faithfulness": 5.0,
+                        "relevance": 5.0,
+                        "correctness": 4.75,
+                        "n": 4
+                    },
+                    "multi_file": {
+                        "faithfulness": 5.0,
+                        "relevance": 4.6667,
+                        "correctness": 4.3333,
+                        "n": 3
+                    },
+                    "symbol": {
+                        "faithfulness": 5.0,
+                        "relevance": 5.0,
+                        "correctness": 5.0,
+                        "n": 5
+                    },
+                    "unanswerable": {
+                        "faithfulness": null,
+                        "relevance": null,
+                        "correctness": null,
+                        "n": 0
+                    }
+                }
+            },
+            "checks": {
+                "citations_valid": {
+                    "passed": 20,
+                    "total": 20
+                },
+                "found_matches": {
+                    "passed": 19,
+                    "total": 20
+                },
+                "mentions_ok": {
+                    "passed": 14,
+                    "total": 20
+                },
+                "no_forbidden": {
+                    "passed": 20,
+                    "total": 20
+                }
+            },
+            "judge_sanity": {
+                "passed": 4,
+                "total": 4
+            },
+            "skipped": [],
+            "latency_ms": {
+                "p50": 6.7,
+                "p95": 10.6
+            },
+            "calls": {
+                "real_calls": 4,
+                "cached_calls": 38
+            },
+            "n_examples": 20
+        },
+        "published": true
+    },
+    {
+        "id": "grid",
+        "kind": "grid",
+        "created_at": "2026-10-05T21:22:09",
+        "summary": {
+            "best_at_5": {
+                "embedder": "BAAI/bge-small-en-v1.5",
+                "strategy": "code_aware",
+                "mode": "hybrid",
+                "recall": 0.8148,
+                "mrr": 0.8028
+            }
+        },
+        "published": true
+    },
+    {
+        "id": "full_245d66225e",
+        "kind": "full",
+        "created_at": "2026-10-07 17:37:29",
+        "summary": {
+            "retrieval": {
+                "overall": {
+                    "precision": 0.2444,
+                    "recall": 0.6944,
+                    "mrr": 0.6667,
+                    "hit": 0.8333,
+                    "ndcg": 0.6237,
+                    "n": 18
+                },
+                "by_category": {
+                    "conceptual": {
+                        "precision": 0.25,
+                        "recall": 0.625,
+                        "mrr": 0.5625,
+                        "hit": 0.75,
+                        "ndcg": 0.4979,
+                        "n": 4
+                    },
+                    "cross_codebase": {
+                        "precision": 0.1,
+                        "recall": 0.25,
+                        "mrr": 0.25,
+                        "hit": 0.5,
+                        "ndcg": 0.1934,
+                        "n": 2
+                    },
+                    "location": {
+                        "precision": 0.25,
+                        "recall": 0.75,
+                        "mrr": 0.875,
+                        "hit": 1.0,
+                        "ndcg": 0.75,
+                        "n": 4
+                    },
+                    "multi_file": {
+                        "precision": 0.2667,
+                        "recall": 0.5,
+                        "mrr": 0.4167,
+                        "hit": 0.6667,
+                        "ndcg": 0.3988,
+                        "n": 3
+                    },
+                    "symbol": {
+                        "precision": 0.28,
+                        "recall": 1.0,
+                        "mrr": 0.9,
+                        "hit": 1.0,
+                        "ndcg": 0.9302,
+                        "n": 5
+                    },
+                    "unanswerable": {
+                        "precision": null,
+                        "recall": null,
+                        "mrr": null,
+                        "hit": null,
+                        "ndcg": null,
+                        "n": 0
+                    }
+                }
+            },
+            "generation": {
+                "overall": {
+                    "faithfulness": 4.0,
+                    "relevance": 4.0,
+                    "correctness": 4.0,
+                    "n": 18
+                },
+                "by_category": {
+                    "conceptual": {
+                        "faithfulness": 4.0,
+                        "relevance": 4.0,
+                        "correctness": 4.0,
+                        "n": 4
+                    },
+                    "cross_codebase": {
+                        "faithfulness": 4.0,
+                        "relevance": 4.0,
+                        "correctness": 4.0,
+                        "n": 2
+                    },
+                    "location": {
+                        "faithfulness": 4.0,
+                        "relevance": 4.0,
+                        "correctness": 4.0,
+                        "n": 4
+                    },
+                    "multi_file": {
+                        "faithfulness": 4.0,
+                        "relevance": 4.0,
+                        "correctness": 4.0,
+                        "n": 3
+                    },
+                    "symbol": {
+                        "faithfulness": 4.0,
+                        "relevance": 4.0,
+                        "correctness": 4.0,
+                        "n": 5
+                    },
+                    "unanswerable": {
+                        "faithfulness": null,
+                        "relevance": null,
+                        "correctness": null,
+                        "n": 0
+                    }
+                }
+            },
+            "checks": {
+                "citations_valid": {
+                    "passed": 20,
+                    "total": 20
+                },
+                "found_matches": {
+                    "passed": 18,
+                    "total": 20
+                },
+                "mentions_ok": {
+                    "passed": 2,
+                    "total": 20
+                },
+                "no_forbidden": {
+                    "passed": 20,
+                    "total": 20
+                }
+            },
+            "judge_sanity": {
+                "passed": 0,
+                "total": 4
+            },
+            "skipped": [],
+            "latency_ms": {
+                "p50": 7.7,
+                "p95": 14.4
+            },
+            "calls": {
+                "real_calls": 41,
+                "cached_calls": 1
+            },
+            "n_examples": 20
+        },
+        "published": false
+    },
+    {
+        "id": "ret_01d79ef125",
+        "kind": "retrieval",
+        "created_at": "2026-10-07 17:37:28",
+        "summary": {
+            "retrieval": {
+                "overall": {
+                    "precision": 0.2444,
+                    "recall": 0.6944,
+                    "mrr": 0.6667,
+                    "hit": 0.8333,
+                    "ndcg": 0.6237,
+                    "n": 18
+                },
+                "by_category": {
+                    "conceptual": {
+                        "precision": 0.25,
+                        "recall": 0.625,
+                        "mrr": 0.5625,
+                        "hit": 0.75,
+                        "ndcg": 0.4979,
+                        "n": 4
+                    },
+                    "cross_codebase": {
+                        "precision": 0.1,
+                        "recall": 0.25,
+                        "mrr": 0.25,
+                        "hit": 0.5,
+                        "ndcg": 0.1934,
+                        "n": 2
+                    },
+                    "location": {
+                        "precision": 0.25,
+                        "recall": 0.75,
+                        "mrr": 0.875,
+                        "hit": 1.0,
+                        "ndcg": 0.75,
+                        "n": 4
+                    },
+                    "multi_file": {
+                        "precision": 0.2667,
+                        "recall": 0.5,
+                        "mrr": 0.4167,
+                        "hit": 0.6667,
+                        "ndcg": 0.3988,
+                        "n": 3
+                    },
+                    "symbol": {
+                        "precision": 0.28,
+                        "recall": 1.0,
+                        "mrr": 0.9,
+                        "hit": 1.0,
+                        "ndcg": 0.9302,
+                        "n": 5
+                    },
+                    "unanswerable": {
+                        "precision": null,
+                        "recall": null,
+                        "mrr": null,
+                        "hit": null,
+                        "ndcg": null,
+                        "n": 0
+                    }
+                }
+            },
+            "latency_ms": {
+                "p50": 5.3,
+                "p95": 7.1
+            },
+            "n_examples": 20
+        },
+        "published": false
+    }
+]

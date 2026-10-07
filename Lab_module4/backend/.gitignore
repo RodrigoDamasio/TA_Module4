@@ -6,3 +6,6 @@
 /models/
 .coverage
 htmlcov/
+
+# E2E backend data (frontend/playwright.config.ts)
+/.e2e/

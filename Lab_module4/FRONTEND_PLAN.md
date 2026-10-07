@@ -372,12 +372,28 @@ Vercel needs no secret: the Gemini key stays on Railway only.
 
 ## 14. Definition of done
 
-- [ ] Every lab frontend requirement (§1), with the 4 extensions visible in the UI
-- [ ] typecheck, lint, unit and component tests (coverage ≥ 80 %), build: 0 Gemini calls
-- [ ] E1–E8 pass locally against the fake backend
+- [x] Every lab frontend requirement (§1), with the 4 extensions visible in the UI
+- [x] typecheck, lint, 94 unit and component tests (95 % statements, 88 % branches), build: 0 Gemini calls
+- [x] E1–E8 pass locally against the fake backend: 8/8
 - [ ] Deployed to Vercel; CORS updated on Railway; E9 passes in production
 - [ ] `frontend/DEPLOY.md` with the steps run; `frontend/README.md`; deviations recorded below
 
 ## 15. Implementation notes (deviations from this plan)
 
-*To be filled in during implementation.*
+| Plan | Implementation | Why |
+|---|---|---|
+| `/config` with limits, rules, defaults, modes, `pipeline_debug` | Also `rate_limits` (query per minute and per day) | Lets the UI explain limits without guessing |
+| — | **Backend fix:** in fake mode the server ignored `RERANK_MODEL=""` | Found while adding B1: the E2E backend couldn't mirror production's disabled reranker |
+| Conversation as `role="log"` | A labelled `<section>`; a separate polite status says "Answer ready, 3 sources" | A live log would read whole answers aloud |
+| Busy text switches to "Writing the answer…" after 1 s | One message: "Searching the code and writing the answer…" | Simpler; the request is a single call either way |
+| Settings collapse on phones only | Collapsed on every width; the summary line shows the values ("Settings: shopflow · Hybrid · K 5") | One behaviour, no layout-dependent state; on phones the suggestions stay above the fold |
+| `useJob`, `useConfig` hooks | `useLoad` (load + reload), `useApiError` (error + Retry-After), `useNow`; job polling lives in `lib/indexing.ts` (`followJob`, `indexAll`), shared by uploads and the full-evaluation replay | Testable without React; one polling loop |
+| — | Extra modules: `lib/dropped.ts` (dropped folders through the FileSystemEntry API), `lib/template.ts` (custom dataset template and checks) | Kept components small |
+| E1 uploads `test_files/` locally | Locally: `e2e/fixtures/mini-project` (with a `dist/` folder to show a skipped build folder). Production: `test_files/auction_checklist` | `node_modules/` is git-ignored everywhere in the repo, so it can't be a committed fixture |
+| Fixture for a `found: false` answer | Built in the component test from a real response | The fake LLM always finds an answer |
+
+**Bugs found by the tests and fixed:**
+- **Page 959 px wide on a phone (E2E, E7).** A single-column CSS grid sizes its implicit column to the longest code line, so code blocks could not scroll inside their boxes. Fixed with `grid-cols-1` (`minmax(0, 1fr)`).
+- **Still 47 px too wide on Evaluation (E2E, E7).** A table's visually hidden `<caption>` (`sr-only`, absolutely positioned) escaped its scroll box. Fixed: every `role="region"` scroll box is `position: relative`.
+- **Next's route announcer is also `role="alert"` (E2E).** Error lookups are scoped to `main`, as in Lab 3.
+- **Redeploying the backend:** `railway up --ci` answered "Free plan resource provision limit exceeded" while the deleted Module 2 project was still pending; `railway up --detach --service backend --environment production` deployed normally (see backend/DEPLOY.md).

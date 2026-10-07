@@ -1,0 +1,17 @@
+{
+    "type": "http://localhost:8000/problems/validation-error",
+    "title": "Your request is not valid.",
+    "status": 422,
+    "detail": "The request body has 2 invalid fields.",
+    "instance": "/query",
+    "errors": [
+        {
+            "detail": "Must be at least 3 characters.",
+            "pointer": "#/question"
+        },
+        {
+            "detail": "This field is required.",
+            "pointer": "#/codebases"
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "type": "http://localhost:8000/problems/codebase-read-only",
+    "title": "This codebase is read-only.",
+    "status": 409,
+    "detail": "'shopflow' is a sample codebase: it cannot be changed or deleted.",
+    "instance": "/codebases/shopflow"
+}

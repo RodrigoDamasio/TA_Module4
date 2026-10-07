@@ -8,3 +8,4 @@ __pycache__/
 chroma/
 models/
 .coverage
+.e2e/

@@ -129,8 +129,12 @@ railway variables --set "FRONTEND_ORIGIN=http://localhost:3000,https://<vercel-d
 
 ```bash
 pytest -q && ruff check . && git commit ...   # gates + rollback point
-railway up --ci
+railway up --detach --service backend --environment production
 ```
+
+On 2026-10-07 (adding `GET /config`), plain `railway up --ci` failed with "Free plan resource provision limit
+exceeded" while the deleted Module 2 project was still pending removal; naming the service and environment
+deployed normally. Follow the deployment with `railway deployment list` and `/health`.
 
 Rollback: in the Railway dashboard, open `backend` → Deployments → the previous deployment → Redeploy. The volume is
 not affected. Jobs queued or running during a redeploy are marked failed at startup ("Interrupted by a server

@@ -1,0 +1,778 @@
+{
+    "request_id": "req_5027268c1b6e",
+    "hits": [
+        {
+            "n": 1,
+            "chunk_id": "8bf5e379860af72a8705ee65",
+            "codebase": "shopflow",
+            "path": "backend/app/orders/service.py",
+            "language": "python",
+            "kind": "function",
+            "symbol": "apply_discount",
+            "signature": "def apply_discount(subtotal: Decimal, code: str | None) -> Decimal",
+            "start_line": 1,
+            "end_line": 26,
+            "part": null,
+            "code": "\"\"\"Order placement: stock, discounts, payment, confirmation.\"\"\"\n\nfrom decimal import Decimal\n\nfrom sqlalchemy.orm import Session\n\nfrom ..inventory.stock import release_stock, reserve_stock\nfrom ..notifications.email import send_order_confirmation\nfrom ..payments.client import PaymentClient, PaymentError\nfrom .models import Order, OrderItem, OrderStatus, User\n\n\ndef apply_discount(subtotal: Decimal, code: str | None) -> Decimal:\n    \"\"\"Apply a discount code to a subtotal.\n\n    WELCOME10 takes 10% off; FREESHIP removes the 5.00 shipping fee; anything else is\n    ignored. The result is never negative and is rounded to cents.\n    \"\"\"\n    shipping = Decimal(\"5.00\")\n    if code == \"WELCOME10\":\n        total = subtotal * Decimal(\"0.90\") + shipping\n    elif code == \"FREESHIP\":\n        total = subtotal\n    else:\n        total = subtotal + shipping\n    return max(total, Decimal(\"0\")).quantize(Decimal(\"0.01\"))",
+            "scores": {
+                "vector": 0.21764284372329712,
+                "bm25": 6.933600321868809,
+                "rrf": 0.016393442622950817,
+                "rerank": null,
+                "ranks": {
+                    "vector": 1,
+                    "bm25": 1
+                }
+            }
+        },
+        {
+            "n": 2,
+            "chunk_id": "cf4f60610ceb675adb103cca",
+            "codebase": "shopflow",
+            "path": "backend/app/orders/service.py",
+            "language": "python",
+            "kind": "method",
+            "symbol": "OrderService.place_order",
+            "signature": "def place_order(self, user: User, items: list[dict], discount_code: str | None) -> Order",
+            "start_line": 36,
+            "end_line": 57,
+            "part": null,
+            "code": "    def place_order(self, user: User, items: list[dict], discount_code: str | None) -> Order:\n        \"\"\"Reserve stock, charge the card, and save the order.\n\n        If the charge fails, the reserved stock is released and the order is stored with\n        status PAYMENT_FAILED so support can see the attempt.\n        \"\"\"\n        reserve_stock(self.session, items)\n        subtotal = sum(Decimal(str(i[\"unit_price\"])) * i[\"quantity\"] for i in items)\n        total = apply_discount(subtotal, discount_code)\n        order = Order(user_id=user.id, total=total, discount_code=discount_code)\n        order.items = [OrderItem(**item) for item in items]\n        try:\n            order.payment_id = self.payments.charge(amount=total, customer_email=user.email)\n            order.status = OrderStatus.PAID\n        except PaymentError:\n            release_stock(self.session, items)\n            order.status = OrderStatus.PAYMENT_FAILED\n        self.session.add(order)\n        self.session.commit()\n        if order.status is OrderStatus.PAID:\n            send_order_confirmation(user.email, order)\n        return order",
+            "scores": {
+                "vector": 0.2049693465232849,
+                "bm25": 5.181879082500627,
+                "rrf": 0.01605222734254992,
+                "rerank": null,
+                "ranks": {
+                    "vector": 2,
+                    "bm25": 3
+                }
+            }
+        },
+        {
+            "n": 3,
+            "chunk_id": "baedce3be24ba368b8929c6f",
+            "codebase": "shopflow",
+            "path": "web/src/cart/cart.ts",
+            "language": "typescript",
+            "kind": "class",
+            "symbol": "Cart",
+            "signature": "class Cart",
+            "start_line": 1,
+            "end_line": 35,
+            "part": null,
+            "code": "import type { CartItem } from \"../orders/schemas\";\n\n/** In-memory shopping cart. Quantities of the same SKU are merged. */\nexport class Cart {\n  items: CartItem[] = [];\n  coupon: string | null = null;\n\n  add(item: CartItem): void {\n    const existing = this.items.find((i) => i.sku === item.sku);\n    if (existing) existing.quantity += item.quantity;\n    else this.items.push({ ...item });\n  }\n\n  remove(sku: string): void {\n    this.items = this.items.filter((i) => i.sku !== sku);\n  }\n\n  /** Sum of unit price \u00d7 quantity, before discounts and shipping. */\n  subtotal(): number {\n    return this.items.reduce((sum, i) => sum + i.unit_price * i.quantity, 0);\n  }\n\n  /**\n   * Remembers a coupon code for checkout. Codes are upper-cased; the server decides\n   * whether the code is valid (see apply_discount in the backend).\n   */\n  applyCoupon(code: string): void {\n    this.coupon = code.trim().toUpperCase() || null;\n  }\n\n  clear(): void {\n    this.items = [];\n    this.coupon = null;\n  }\n}",
+            "scores": {
+                "vector": 0.11555570363998413,
+                "bm25": 5.287832672031425,
+                "rrf": 0.015949820788530467,
+                "rerank": null,
+                "ranks": {
+                    "vector": 3,
+                    "bm25": 2
+                }
+            }
+        },
+        {
+            "n": 4,
+            "chunk_id": "b4aa2b0a62a49bb1bacf741b",
+            "codebase": "shopflow",
+            "path": "web/src/orders/processOrder.ts",
+            "language": "typescript",
+            "kind": "function",
+            "symbol": "processOrder",
+            "signature": "async function processOrder(cart: Cart, token: string, discountCode?: string): Promise<OrderResult>",
+            "start_line": 9,
+            "end_line": 36,
+            "part": [
+                1,
+                2
+            ],
+            "code": "/**\n * Turns the cart into an order.\n *\n * 1. Validates the cart with OrderRequestSchema (Zod) before any network call.\n * 2. Sends POST /orders with the user's bearer token.\n * 3. Maps API errors to user-facing reasons: 409 \u2192 out of stock, 402 \u2192 payment declined.\n * On success the cart is emptied.\n */\nexport async function processOrder(cart: Cart, token: string, discountCode?: string): Promise<OrderResult> {\n  const parsed = OrderRequestSchema.safeParse({ items: cart.items, discount_code: discountCode });\n  if (!parsed.success) {\n    return { ok: false, reason: \"invalid-cart\", message: parsed.error.issues[0].message };\n  }\n  try {\n    const order = await apiFetch<{ id: number; total: string }>(\n      \"/orders\",\n      { method: \"POST\", body: JSON.stringify(parsed.data) },\n      token,\n    );\n    cart.clear();\n    return { ok: true, orderId: order.id, total: order.total };\n  } catch (err) {\n    if (err instanceof ApiError && err.status === 409) {\n      return { ok: false, reason: \"out-of-stock\", message: err.message };\n    }\n    if (err instanceof ApiError && err.status === 402) {\n      return { ok: false, reason: \"payment-declined\", message: \"Your card was declined.\" };\n    }",
+            "scores": {
+                "vector": 0.1133185625076294,
+                "bm25": 2.6186801850833414,
+                "rrf": 0.015456730769230768,
+                "rerank": null,
+                "ranks": {
+                    "vector": 5,
+                    "bm25": 4
+                }
+            }
+        },
+        {
+            "n": 5,
+            "chunk_id": "12b8b76a10cf318d2f9d9e7c",
+            "codebase": "shopflow",
+            "path": "docs/ARCHITECTURE.md",
+            "language": "markdown",
+            "kind": "section",
+            "symbol": "Architecture > Components, Architecture > Order flow",
+            "signature": null,
+            "start_line": 1,
+            "end_line": 20,
+            "part": null,
+            "code": "# Architecture\n\n## Components\n\n- **Web client** (`web/`): React components, a cart kept in memory, and `processOrder`,\n  which validates the cart and calls the API.\n- **API** (`backend/app/`): FastAPI routers for auth, orders and stock.\n- **Payment gateway**: an external HTTP service, wrapped by `PaymentClient`.\n- **Database**: any SQLAlchemy database (SQLite in development, PostgreSQL in production).\n\n## Order flow\n\n1. The customer clicks **Checkout** (`CheckoutButton`), which calls `processOrder`.\n2. `processOrder` validates the cart with Zod and sends `POST /orders` with the bearer token.\n3. The `create_order` route calls `OrderService.place_order`.\n4. `place_order` reserves stock, applies any discount code, and charges the card with\n   `PaymentClient.charge`. If the charge fails, the stock is released and the order is\n   marked `payment_failed`.\n5. On success the order is saved as `paid` and a confirmation email is sent.\n",
+            "scores": {
+                "vector": 0.11387848854064941,
+                "bm25": 1.4691274757023778,
+                "rrf": 0.015415111940298508,
+                "rerank": null,
+                "ranks": {
+                    "vector": 4,
+                    "bm25": 7
+                }
+            }
+        }
+    ],
+    "trace": {
+        "request_id": "req_5027268c1b6e",
+        "total_ms": 11.3,
+        "spans": [
+            {
+                "name": "embed_query",
+                "ms": 2.6,
+                "ok": true,
+                "model": "fake-hashing-256",
+                "cached": false
+            },
+            {
+                "name": "vector_search",
+                "ms": 3.8,
+                "ok": true,
+                "candidates": 20,
+                "top_similarity": 0.2176,
+                "low_similarity": 0.0
+            },
+            {
+                "name": "bm25",
+                "ms": 0.1,
+                "ok": true,
+                "candidates": 10,
+                "top_score": 6.9336,
+                "low_score": 1.1308
+            },
+            {
+                "name": "fuse",
+                "ms": 0.1,
+                "ok": true,
+                "overlap": 10
+            }
+        ],
+        "mode": "hybrid",
+        "k": 5,
+        "hits": 5,
+        "query_chars": 14
+    },
+    "meta": {
+        "mode": "hybrid",
+        "k": 5,
+        "embedder": "fake-hashing-256",
+        "reranker": "",
+        "chunker_version": "2",
+        "model": "demo",
+        "prompt_version": "2",
+        "debug": "enabled"
+    },
+    "pipeline": {
+        "question": "apply discount",
+        "query_rewrite": null,
+        "query_embedding": {
+            "model": "fake-hashing-256",
+            "dims": 256,
+            "cached": false,
+            "ms": 2.6
+        },
+        "vector_candidates": [
+            {
+                "rank": 1,
+                "chunk_id": "8bf5e379860af72a8705ee65",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "apply_discount",
+                "start_line": 1,
+                "end_line": 26,
+                "similarity": 0.217643,
+                "distance": 0.782357
+            },
+            {
+                "rank": 2,
+                "chunk_id": "cf4f60610ceb675adb103cca",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "OrderService.place_order",
+                "start_line": 36,
+                "end_line": 57,
+                "similarity": 0.204969,
+                "distance": 0.795031
+            },
+            {
+                "rank": 3,
+                "chunk_id": "baedce3be24ba368b8929c6f",
+                "codebase": "shopflow",
+                "path": "web/src/cart/cart.ts",
+                "symbol": "Cart",
+                "start_line": 1,
+                "end_line": 35,
+                "similarity": 0.115556,
+                "distance": 0.884444
+            },
+            {
+                "rank": 4,
+                "chunk_id": "12b8b76a10cf318d2f9d9e7c",
+                "codebase": "shopflow",
+                "path": "docs/ARCHITECTURE.md",
+                "symbol": "Architecture > Components, Architecture > Order flow",
+                "start_line": 1,
+                "end_line": 20,
+                "similarity": 0.113878,
+                "distance": 0.886122
+            },
+            {
+                "rank": 5,
+                "chunk_id": "b4aa2b0a62a49bb1bacf741b",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 9,
+                "end_line": 36,
+                "similarity": 0.113319,
+                "distance": 0.886681
+            },
+            {
+                "rank": 6,
+                "chunk_id": "ed489be353825afe5dfdac63",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 33,
+                "end_line": 39,
+                "similarity": 0.079057,
+                "distance": 0.920943
+            },
+            {
+                "rank": 7,
+                "chunk_id": "970e4ebde02d886183fb9c81",
+                "codebase": "shopflow",
+                "path": "web/src/orders/schemas.ts",
+                "symbol": "CartItemSchema, OrderRequestSchema, CartItem, OrderRequest",
+                "start_line": 1,
+                "end_line": 17,
+                "similarity": 0.066815,
+                "distance": 0.933185
+            },
+            {
+                "rank": 8,
+                "chunk_id": "29b326de3689d20f45ecab9e",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "OrderService, OrderService.__init__",
+                "start_line": 29,
+                "end_line": 34,
+                "similarity": 0.064018,
+                "distance": 0.935982
+            },
+            {
+                "rank": 9,
+                "chunk_id": "e67b570fc55b3d1124ef345c",
+                "codebase": "shopflow",
+                "path": "backend/app/main.py",
+                "symbol": "create_tables, health",
+                "start_line": 1,
+                "end_line": 23,
+                "similarity": 0.039528,
+                "distance": 0.960472
+            },
+            {
+                "rank": 10,
+                "chunk_id": "8944344aa4e05440f3676814",
+                "codebase": "shopflow",
+                "path": "README.md",
+                "symbol": "Shopflow, Shopflow > Setup, Shopflow > Configuration",
+                "start_line": 1,
+                "end_line": 27,
+                "similarity": 0.039467,
+                "distance": 0.960533
+            },
+            {
+                "rank": 11,
+                "chunk_id": "4986ba039635681dff4e048e",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "create_order, get_order",
+                "start_line": 34,
+                "end_line": 58,
+                "similarity": 0.033653,
+                "distance": 0.966347
+            },
+            {
+                "rank": 12,
+                "chunk_id": "98881aa4ac8992a57be6f529",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "Item, OrderRequest, order_service",
+                "start_line": 1,
+                "end_line": 31,
+                "similarity": 0.030514,
+                "distance": 0.969486
+            },
+            {
+                "rank": 13,
+                "chunk_id": "cf9ceb3979b43ffddcf3ff57",
+                "codebase": "ledger",
+                "path": "worker/reconcile.py",
+                "symbol": "reconcile_entries",
+                "start_line": 19,
+                "end_line": 48,
+                "similarity": 0.028105,
+                "distance": 0.971895
+            },
+            {
+                "rank": 14,
+                "chunk_id": "852f64c833016aef22451ede",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/models.py",
+                "symbol": "Order, OrderItem",
+                "start_line": 28,
+                "end_line": 46,
+                "similarity": 0.02004,
+                "distance": 0.97996
+            },
+            {
+                "rank": 15,
+                "chunk_id": "ed83873fb04dfb2911623697",
+                "codebase": "shopflow",
+                "path": "README.md",
+                "symbol": "Shopflow > Further reading",
+                "start_line": 28,
+                "end_line": 30,
+                "similarity": 0.0,
+                "distance": 1.0
+            },
+            {
+                "rank": 16,
+                "chunk_id": "19e29da4ff1155f4e4e04187",
+                "codebase": "shopflow",
+                "path": "backend/app/auth/security.py",
+                "symbol": "decode_access_token",
+                "start_line": 29,
+                "end_line": 34,
+                "similarity": 0.0,
+                "distance": 1.0
+            },
+            {
+                "rank": 17,
+                "chunk_id": "2a59a09b504518672eaff6da",
+                "codebase": "shopflow",
+                "path": "backend/app/inventory/stock.py",
+                "symbol": "release_stock",
+                "start_line": 30,
+                "end_line": 36,
+                "similarity": 0.0,
+                "distance": 1.0
+            },
+            {
+                "rank": 18,
+                "chunk_id": "ad715b3611a9806e0e5db442",
+                "codebase": "shopflow",
+                "path": "web/src/auth/AuthContext.tsx",
+                "symbol": "AuthState",
+                "start_line": 1,
+                "end_line": 11,
+                "similarity": 0.0,
+                "distance": 1.0
+            },
+            {
+                "rank": 19,
+                "chunk_id": "c979bbb9104c797744e64bee",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "OrderResult",
+                "start_line": 1,
+                "end_line": 7,
+                "similarity": 0.0,
+                "distance": 1.0
+            },
+            {
+                "rank": 20,
+                "chunk_id": "9c115d37b49a4955222e71c9",
+                "codebase": "ledger",
+                "path": "worker/reconcile.py",
+                "symbol": "fetch_entries",
+                "start_line": 1,
+                "end_line": 16,
+                "similarity": 0.0,
+                "distance": 1.0
+            }
+        ],
+        "bm25_candidates": [
+            {
+                "rank": 1,
+                "chunk_id": "8bf5e379860af72a8705ee65",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "apply_discount",
+                "start_line": 1,
+                "end_line": 26,
+                "score": 6.9336,
+                "matched_terms": [
+                    "apply",
+                    "discount"
+                ]
+            },
+            {
+                "rank": 2,
+                "chunk_id": "baedce3be24ba368b8929c6f",
+                "codebase": "shopflow",
+                "path": "web/src/cart/cart.ts",
+                "symbol": "Cart",
+                "start_line": 1,
+                "end_line": 35,
+                "score": 5.287833,
+                "matched_terms": [
+                    "apply",
+                    "discount"
+                ]
+            },
+            {
+                "rank": 3,
+                "chunk_id": "cf4f60610ceb675adb103cca",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "OrderService.place_order",
+                "start_line": 36,
+                "end_line": 57,
+                "score": 5.181879,
+                "matched_terms": [
+                    "apply",
+                    "discount"
+                ]
+            },
+            {
+                "rank": 4,
+                "chunk_id": "b4aa2b0a62a49bb1bacf741b",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 9,
+                "end_line": 36,
+                "score": 2.61868,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 5,
+                "chunk_id": "970e4ebde02d886183fb9c81",
+                "codebase": "shopflow",
+                "path": "web/src/orders/schemas.ts",
+                "symbol": "CartItemSchema, OrderRequestSchema, CartItem, OrderRequest",
+                "start_line": 1,
+                "end_line": 17,
+                "score": 2.220992,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 6,
+                "chunk_id": "ed489be353825afe5dfdac63",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 33,
+                "end_line": 39,
+                "score": 2.096252,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 7,
+                "chunk_id": "12b8b76a10cf318d2f9d9e7c",
+                "codebase": "shopflow",
+                "path": "docs/ARCHITECTURE.md",
+                "symbol": "Architecture > Components, Architecture > Order flow",
+                "start_line": 1,
+                "end_line": 20,
+                "score": 1.469127,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 8,
+                "chunk_id": "852f64c833016aef22451ede",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/models.py",
+                "symbol": "Order, OrderItem",
+                "start_line": 28,
+                "end_line": 46,
+                "score": 1.321528,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 9,
+                "chunk_id": "98881aa4ac8992a57be6f529",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "Item, OrderRequest, order_service",
+                "start_line": 1,
+                "end_line": 31,
+                "score": 1.275753,
+                "matched_terms": [
+                    "discount"
+                ]
+            },
+            {
+                "rank": 10,
+                "chunk_id": "4986ba039635681dff4e048e",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "create_order, get_order",
+                "start_line": 34,
+                "end_line": 58,
+                "score": 1.130825,
+                "matched_terms": [
+                    "discount"
+                ]
+            }
+        ],
+        "rrf_merged": [
+            {
+                "rank": 1,
+                "chunk_id": "8bf5e379860af72a8705ee65",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "apply_discount",
+                "start_line": 1,
+                "end_line": 26,
+                "rrf": 0.016393,
+                "vector": 1,
+                "bm25": 1
+            },
+            {
+                "rank": 2,
+                "chunk_id": "cf4f60610ceb675adb103cca",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "OrderService.place_order",
+                "start_line": 36,
+                "end_line": 57,
+                "rrf": 0.016052,
+                "vector": 2,
+                "bm25": 3
+            },
+            {
+                "rank": 3,
+                "chunk_id": "baedce3be24ba368b8929c6f",
+                "codebase": "shopflow",
+                "path": "web/src/cart/cart.ts",
+                "symbol": "Cart",
+                "start_line": 1,
+                "end_line": 35,
+                "rrf": 0.01595,
+                "vector": 3,
+                "bm25": 2
+            },
+            {
+                "rank": 4,
+                "chunk_id": "b4aa2b0a62a49bb1bacf741b",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 9,
+                "end_line": 36,
+                "rrf": 0.015457,
+                "vector": 5,
+                "bm25": 4
+            },
+            {
+                "rank": 5,
+                "chunk_id": "12b8b76a10cf318d2f9d9e7c",
+                "codebase": "shopflow",
+                "path": "docs/ARCHITECTURE.md",
+                "symbol": "Architecture > Components, Architecture > Order flow",
+                "start_line": 1,
+                "end_line": 20,
+                "rrf": 0.015415,
+                "vector": 4,
+                "bm25": 7
+            },
+            {
+                "rank": 6,
+                "chunk_id": "ed489be353825afe5dfdac63",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "processOrder",
+                "start_line": 33,
+                "end_line": 39,
+                "rrf": 0.015152,
+                "vector": 6,
+                "bm25": 6
+            },
+            {
+                "rank": 7,
+                "chunk_id": "970e4ebde02d886183fb9c81",
+                "codebase": "shopflow",
+                "path": "web/src/orders/schemas.ts",
+                "symbol": "CartItemSchema, OrderRequestSchema, CartItem, OrderRequest",
+                "start_line": 1,
+                "end_line": 17,
+                "rrf": 0.015063,
+                "vector": 7,
+                "bm25": 5
+            },
+            {
+                "rank": 8,
+                "chunk_id": "4986ba039635681dff4e048e",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "create_order, get_order",
+                "start_line": 34,
+                "end_line": 58,
+                "rrf": 0.014145,
+                "vector": 11,
+                "bm25": 10
+            },
+            {
+                "rank": 9,
+                "chunk_id": "98881aa4ac8992a57be6f529",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/routes.py",
+                "symbol": "Item, OrderRequest, order_service",
+                "start_line": 1,
+                "end_line": 31,
+                "rrf": 0.01407,
+                "vector": 12,
+                "bm25": 9
+            },
+            {
+                "rank": 10,
+                "chunk_id": "852f64c833016aef22451ede",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/models.py",
+                "symbol": "Order, OrderItem",
+                "start_line": 28,
+                "end_line": 46,
+                "rrf": 0.013871,
+                "vector": 14,
+                "bm25": 8
+            },
+            {
+                "rank": 11,
+                "chunk_id": "29b326de3689d20f45ecab9e",
+                "codebase": "shopflow",
+                "path": "backend/app/orders/service.py",
+                "symbol": "OrderService, OrderService.__init__",
+                "start_line": 29,
+                "end_line": 34,
+                "rrf": 0.010294,
+                "vector": 8
+            },
+            {
+                "rank": 12,
+                "chunk_id": "e67b570fc55b3d1124ef345c",
+                "codebase": "shopflow",
+                "path": "backend/app/main.py",
+                "symbol": "create_tables, health",
+                "start_line": 1,
+                "end_line": 23,
+                "rrf": 0.010145,
+                "vector": 9
+            },
+            {
+                "rank": 13,
+                "chunk_id": "8944344aa4e05440f3676814",
+                "codebase": "shopflow",
+                "path": "README.md",
+                "symbol": "Shopflow, Shopflow > Setup, Shopflow > Configuration",
+                "start_line": 1,
+                "end_line": 27,
+                "rrf": 0.01,
+                "vector": 10
+            },
+            {
+                "rank": 14,
+                "chunk_id": "cf9ceb3979b43ffddcf3ff57",
+                "codebase": "ledger",
+                "path": "worker/reconcile.py",
+                "symbol": "reconcile_entries",
+                "start_line": 19,
+                "end_line": 48,
+                "rrf": 0.009589,
+                "vector": 13
+            },
+            {
+                "rank": 15,
+                "chunk_id": "ed83873fb04dfb2911623697",
+                "codebase": "shopflow",
+                "path": "README.md",
+                "symbol": "Shopflow > Further reading",
+                "start_line": 28,
+                "end_line": 30,
+                "rrf": 0.009333,
+                "vector": 15
+            },
+            {
+                "rank": 16,
+                "chunk_id": "19e29da4ff1155f4e4e04187",
+                "codebase": "shopflow",
+                "path": "backend/app/auth/security.py",
+                "symbol": "decode_access_token",
+                "start_line": 29,
+                "end_line": 34,
+                "rrf": 0.009211,
+                "vector": 16
+            },
+            {
+                "rank": 17,
+                "chunk_id": "2a59a09b504518672eaff6da",
+                "codebase": "shopflow",
+                "path": "backend/app/inventory/stock.py",
+                "symbol": "release_stock",
+                "start_line": 30,
+                "end_line": 36,
+                "rrf": 0.009091,
+                "vector": 17
+            },
+            {
+                "rank": 18,
+                "chunk_id": "ad715b3611a9806e0e5db442",
+                "codebase": "shopflow",
+                "path": "web/src/auth/AuthContext.tsx",
+                "symbol": "AuthState",
+                "start_line": 1,
+                "end_line": 11,
+                "rrf": 0.008974,
+                "vector": 18
+            },
+            {
+                "rank": 19,
+                "chunk_id": "c979bbb9104c797744e64bee",
+                "codebase": "shopflow",
+                "path": "web/src/orders/processOrder.ts",
+                "symbol": "OrderResult",
+                "start_line": 1,
+                "end_line": 7,
+                "rrf": 0.008861,
+                "vector": 19
+            },
+            {
+                "rank": 20,
+                "chunk_id": "9c115d37b49a4955222e71c9",
+                "codebase": "ledger",
+                "path": "worker/reconcile.py",
+                "symbol": "fetch_entries",
+                "start_line": 1,
+                "end_line": 16,
+                "rrf": 0.00875,
+                "vector": 20
+            }
+        ],
+        "reranked": null,
+        "rerank_skipped": "disabled"
+    }
+}

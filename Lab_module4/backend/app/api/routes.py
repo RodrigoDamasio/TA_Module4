@@ -8,15 +8,25 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request, Response
 
+from app.application.evaluation.service import MAX_CUSTOM_EXAMPLES
 from app.application.tracing import Tracer
 from app.domain.chunks import CHUNKER_VERSION
+from app.domain.codebases import CODEBASE_ID_PATTERN
 from app.domain.errors import InvalidPath
-from app.domain.files import SourceFile
+from app.domain.files import (
+    EXTENSIONS,
+    LOCKFILES,
+    MAX_PATH_CHARS,
+    MINIFIED_LINE_CHARS,
+    SKIPPED_DIRS,
+    SourceFile,
+)
 from app.domain.retrieval import SearchMode
 
 from .dependencies import Container, get_container
 from .problems import PROBLEM_RESPONSE, WaitTimeout
 from .schemas import (
+    QUESTION_MAX_CHARS,
     EvaluateRequest,
     IndexRequest,
     QueryRequest,
@@ -63,7 +73,9 @@ def _meta(container: Container, mode: SearchMode, k: int, debug: str | None) -> 
         "mode": mode.value,
         "k": k,
         "embedder": s.embedder_name,
-        "reranker": s.rerank_model if s.embed_mode == "onnx" else "fake-overlap",
+        "reranker": s.rerank_model
+        if s.embed_mode == "onnx" or not s.rerank_model
+        else "fake-overlap",
         "chunker_version": CHUNKER_VERSION,
         "model": s.llm_name,
         "prompt_version": container.prompts.version,
@@ -284,5 +296,59 @@ def health(container: Container = Depends(get_container)) -> dict[str, str]:
     return {
         "status": "ok",
         "models": container.models.status(),
+        "reranker": _reranker_status(container),
         "samples": container.samples_status,
+    }
+
+
+def _reranker_status(container: Container) -> str:
+    """ready · loading · disabled (RERANK_MODEL is empty) · unavailable (failed to load)."""
+    reranker, reason = container.models.reranker()
+    return "ready" if reranker is not None else (reason or "unavailable")
+
+
+@router.get("/config", tags=["observability"])
+def config(container: Container = Depends(get_container)) -> dict[str, Any]:
+    """Limits, file rules and defaults, so a client can check input before sending it
+    (FRONTEND_PLAN §9). Values come from the same settings and rules the server enforces."""
+    s = container.settings
+    reranker = _reranker_status(container)
+    rerank_ok = reranker in ("ready", "loading")
+    return {
+        "limits": {
+            "max_files_per_request": s.max_files_per_request,
+            "max_bytes_per_request": s.max_bytes_per_request,
+            "max_files_per_codebase": s.max_files_per_codebase,
+            "max_bytes_per_codebase": s.max_bytes_per_codebase,
+            "max_user_codebases": s.max_user_codebases,
+            "codebase_ttl_hours": s.codebase_ttl_hours,
+            "max_k": s.max_k,
+            "question_max_chars": QUESTION_MAX_CHARS,
+            "max_path_chars": MAX_PATH_CHARS,
+            "minified_line_chars": MINIFIED_LINE_CHARS,
+            "max_custom_examples": MAX_CUSTOM_EXAMPLES,
+        },
+        "files": {
+            "extensions": sorted(EXTENSIONS),
+            "extra_names": [".env.example"],
+            "skipped_dirs": sorted(SKIPPED_DIRS),
+            "lockfiles": sorted(LOCKFILES),
+            "codebase_id_pattern": CODEBASE_ID_PATTERN,
+        },
+        "defaults": {"k": s.default_k, "mode": s.default_mode},
+        "modes": [
+            {
+                "id": m.value,
+                "available": m is not SearchMode.HYBRID_RERANK or rerank_ok,
+                "reason": None
+                if m is not SearchMode.HYBRID_RERANK or rerank_ok
+                else f"The reranker is {reranker} on this server; this mode runs as hybrid.",
+            }
+            for m in SearchMode
+        ],  # fmt: skip
+        "pipeline_debug": s.pipeline_debug_enabled,
+        "rate_limits": {
+            "query_per_minute": s.rate_limit_query_per_minute,
+            "query_per_day": s.rate_limit_query_per_day,
+        },
     }

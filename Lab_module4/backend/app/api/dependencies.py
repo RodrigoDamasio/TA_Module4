@@ -165,7 +165,7 @@ def build_container(
     traces = SqliteTraceStore(db, settings.trace_retention)
     if models is None:
         models = (
-            FakeModels()
+            FakeModels(rerank_disabled=not settings.rerank_model)
             if settings.embed_mode == "fake"
             else OnnxModels(
                 settings.embed_model,

@@ -7,7 +7,8 @@ from enum import StrEnum
 from .errors import InvalidPath
 from .files import Language
 
-_SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{0,39}$")
+CODEBASE_ID_PATTERN = r"^[a-z0-9][a-z0-9-]{0,39}$"
+_SLUG = re.compile(CODEBASE_ID_PATTERN)
 
 
 class CodebaseKind(StrEnum):

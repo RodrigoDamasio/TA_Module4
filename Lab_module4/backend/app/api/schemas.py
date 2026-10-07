@@ -25,15 +25,18 @@ class IndexRequest(BaseModel):
     files: list[FileIn] = Field(min_length=1)
 
 
+QUESTION_MAX_CHARS = 500
+
+
 class SearchRequest(BaseModel):
-    query: str = Field(min_length=2, max_length=500)
+    query: str = Field(min_length=2, max_length=QUESTION_MAX_CHARS)
     codebases: list[str] = Field(min_length=1, max_length=10)
     k: int | None = Field(default=None, ge=1, le=20)
     mode: SearchMode | None = None  # None = the server's DEFAULT_MODE
 
 
 class QueryRequest(BaseModel):
-    question: str = Field(min_length=3, max_length=500)
+    question: str = Field(min_length=3, max_length=QUESTION_MAX_CHARS)
     codebases: list[str] = Field(min_length=1, max_length=10)
     k: int | None = Field(default=None, ge=1, le=20)
     mode: SearchMode | None = None  # None = the server's DEFAULT_MODE

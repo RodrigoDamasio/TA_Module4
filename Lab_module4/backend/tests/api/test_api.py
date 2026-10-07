@@ -243,6 +243,7 @@ def test_stats_and_health(api):
     assert stats["index"]["codebases"] == 2 and stats["index"]["chunks"] == chunks
     assert stats["quota"] == {"circuit": "closed", "mode": "fake"}
     assert a.client.get("/health").json() == {"status": "ok", "models": "ready",
+                                               "reranker": "ready",
                                                "samples": "embedded"}  # fmt: skip
 
 
@@ -275,3 +276,29 @@ def test_pipeline_debug_view(api):
         "/query?debug=true", json={"question": DB_QUESTION, "codebases": ["shopflow"]}
     ).json()
     assert "pipeline" not in body and body["meta"]["debug"] == "disabled"
+
+
+# P9 (FRONTEND_PLAN §9)
+def test_config_mirrors_the_server_rules(api):
+    a = api()
+    cfg = a.client.get("/config").json()
+    limits = cfg["limits"]
+    assert limits["max_files_per_request"] == 50 and limits["max_bytes_per_request"] == 500_000
+    assert limits["question_max_chars"] == 500 and limits["max_k"] == 10
+    assert ".py" in cfg["files"]["extensions"] and "node_modules" in cfg["files"]["skipped_dirs"]
+    assert "package-lock.json" in cfg["files"]["lockfiles"]
+    assert cfg["defaults"] == {"k": 5, "mode": "hybrid"} and cfg["pipeline_debug"] is True
+    assert [m["id"] for m in cfg["modes"]] == ["vector", "bm25", "hybrid", "hybrid_rerank"]
+    assert all(m["available"] for m in cfg["modes"])
+    import re
+
+    pattern = re.compile(cfg["files"]["codebase_id_pattern"])
+    assert pattern.match("auction-checklist") and not pattern.match("Bad_Name")
+
+
+def test_config_and_health_when_the_reranker_is_disabled(api):
+    a = api(rerank_model="")
+    assert a.client.get("/health").json()["reranker"] == "disabled"
+    rerank = a.client.get("/config").json()["modes"][-1]
+    assert rerank["id"] == "hybrid_rerank" and rerank["available"] is False
+    assert "disabled" in rerank["reason"]

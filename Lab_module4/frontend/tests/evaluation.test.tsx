@@ -155,3 +155,24 @@ describe("Navigation", () => {
     expect(await screen.findByText("Models loading")).toBeInTheDocument();
   });
 });
+
+describe("Reports with skipped questions", () => {
+  it("renders a full replay that skipped uncached questions, and reports bad results clearly", async () => {
+    const { default: skipped } = await import("./fixtures/report-full-skipped.json");
+    m.getJob.mockResolvedValueOnce({ ...fx.jobEvaluate, result: skipped as Record<string, unknown> });
+    const user = userEvent.setup();
+    render(<EvaluationApp />);
+    await user.click(screen.getByRole("tab", { name: "Run" }));
+    await user.click(await screen.findByRole("button", { name: "Replay full evaluation" }));
+    expect(await screen.findByText(/3 questions were skipped/)).toBeInTheDocument();
+    expect(screen.getAllByText("skipped").length).toBe(3);
+    expect(screen.getAllByText(/its answer wasn't cached/).length).toBe(3);
+
+    m.getJob.mockResolvedValueOnce({ ...fx.jobEvaluate, result: { nope: true } });
+    await user.click(screen.getByRole("button", { name: "Replay full evaluation" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unexpected response from the server.");
+    m.getJob.mockResolvedValueOnce({ ...fx.jobEvaluate, status: "failed", result: null, error: { title: "X", detail: "Quota reached." } });
+    await user.click(screen.getByRole("button", { name: "Replay full evaluation" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Quota reached.");
+  });
+});

@@ -304,6 +304,8 @@ export const ReportExampleSchema = z.object({
   id: z.string(),
   category: z.string(),
   question: z.string(),
+  // "budget": a full run with no real calls left skips questions whose answer isn't cached.
+  skipped: z.string().optional(),
   retrieved: z.array(
     z.object({
       rank: num,
@@ -313,8 +315,8 @@ export const ReportExampleSchema = z.object({
       lines: z.tuple([num, num]),
       relevant: z.boolean(),
     }),
-  ),
-  targets: z.array(z.object({ target: z.string(), first_rank: nullableNum })),
+  ).default([]),
+  targets: z.array(z.object({ target: z.string(), first_rank: nullableNum })).default([]),
   metrics: RetrievalMetricsSchema.optional(),
   mode_used: z.string().optional(),
   answer: z

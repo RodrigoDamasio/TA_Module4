@@ -2,7 +2,7 @@
 import { useState } from "react";
 import ErrorBanner from "@/components/ErrorBanner";
 import { useApiError } from "@/hooks/useApiError";
-import { runFull, runRetrieval } from "@/lib/api";
+import { ApiError, runFull, runRetrieval } from "@/lib/api";
 import { modeLabel } from "@/lib/format";
 import { followJob } from "@/lib/indexing";
 import { type Config, EvalProgressSchema, type Report, ReportSchema, type SearchMode } from "@/lib/schemas";
@@ -53,8 +53,10 @@ export default function RunPanel({ config }: { config: Config }) {
         const p = EvalProgressSchema.safeParse(j.progress);
         if (p.success) setProgress(`${p.data.examples_done} of ${p.data.examples_total} questions · ${p.data.real_calls ?? 0} real AI calls, ${p.data.cached_calls ?? 0} from cache`);
       });
-      if (job.status === "failed") throw new Error(job.error?.detail ?? "The evaluation failed.");
-      return ReportSchema.parse(job.result);
+      if (job.status === "failed") throw new ApiError("server", job.error?.detail ?? "The evaluation failed.");
+      const report = ReportSchema.safeParse(job.result);
+      if (!report.success) throw new ApiError("invalid_response", "Unexpected response from the server.");
+      return report.data;
     });
 
   function runCustom() {

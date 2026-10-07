@@ -373,10 +373,10 @@ Vercel needs no secret: the Gemini key stays on Railway only.
 ## 14. Definition of done
 
 - [x] Every lab frontend requirement (§1), with the 4 extensions visible in the UI
-- [x] typecheck, lint, 94 unit and component tests (95 % statements, 88 % branches), build: 0 Gemini calls
+- [x] typecheck, lint, 95 unit and component tests (95 % statements, 88 % branches), build: 0 Gemini calls
 - [x] E1–E8 pass locally against the fake backend: 8/8
-- [ ] Deployed to Vercel; CORS updated on Railway; E9 passes in production
-- [ ] `frontend/DEPLOY.md` with the steps run; `frontend/README.md`; deviations recorded below
+- [x] Deployed to Vercel (https://taller-codebase-rag.vercel.app); CORS updated on Railway; E9 passes in production: 7/7, 1 real call
+- [x] `frontend/DEPLOY.md` with the steps run; `frontend/README.md`; deviations recorded below
 
 ## 15. Implementation notes (deviations from this plan)
 
@@ -396,4 +396,7 @@ Vercel needs no secret: the Gemini key stays on Railway only.
 - **Page 959 px wide on a phone (E2E, E7).** A single-column CSS grid sizes its implicit column to the longest code line, so code blocks could not scroll inside their boxes. Fixed with `grid-cols-1` (`minmax(0, 1fr)`).
 - **Still 47 px too wide on Evaluation (E2E, E7).** A table's visually hidden `<caption>` (`sr-only`, absolutely positioned) escaped its scroll box. Fixed: every `role="region"` scroll box is `position: relative`.
 - **Next's route announcer is also `role="alert"` (E2E).** Error lookups are scoped to `main`, as in Lab 3.
+- **Full replay rejected in production (E9).** Questions the replay skips (no cached answer, 0 calls allowed) have no `retrieved` list, and the schema refused the whole report. Fixed: skipped entries are accepted and explained.
+- **Production E1 would have deleted a real upload.** A user had indexed `auction-checklist`; the test now uploads as `e2e-auction-checklist`.
+- **Known issue (backend), found by E9:** BM25 statistics span every indexed codebase, so an upload shifts the samples' keyword scores and can turn cached answers into misses. Documented in [frontend/DEPLOY.md](frontend/DEPLOY.md#known-issue-uploads-change-the-bm25-scores-of-other-codebases); fixing it needs a new full evaluation.
 - **Redeploying the backend:** `railway up --ci` answered "Free plan resource provision limit exceeded" while the deleted Module 2 project was still pending; `railway up --detach --service backend --environment production` deployed normally (see backend/DEPLOY.md).

@@ -2,7 +2,12 @@ import Badge from "@/components/Badge";
 import { categoryLabel, lineRange, metric } from "@/lib/format";
 import type { ReportExample } from "@/lib/schemas";
 
+const SKIP_TEXT: Record<string, string> = {
+  budget: "Not run: its answer wasn't cached, and this server makes no real AI calls for evaluations.",
+};
+
 function Detail({ e }: { e: ReportExample }) {
+  if (e.skipped) return null;
   return (
     <div className="space-y-3 p-3 text-sm">
       <div>
@@ -61,9 +66,10 @@ export default function QuestionTable({ examples }: { examples: ReportExample[] 
                   <span className="font-mono text-xs">{e.id}</span>
                   <Badge>{categoryLabel(e.category)}</Badge>
                   <span className="font-medium">{e.question}</span>
+                  {e.skipped && <Badge tone="warn">skipped</Badge>}
                 </span>
                 <span className="block text-xs text-zinc-600 dark:text-zinc-400">
-                  {e.metrics ? `R ${metric(e.metrics.recall, 2)} · MRR ${metric(e.metrics.mrr, 2)}` : "no retrieval score"}
+                  {e.skipped ? SKIP_TEXT[e.skipped] ?? `skipped (${e.skipped})` : e.metrics ? `R ${metric(e.metrics.recall, 2)} · MRR ${metric(e.metrics.mrr, 2)}` : "no retrieval score"}
                   {judged && e.judge_scores && ` · judge ${e.judge_scores.faithfulness}/${e.judge_scores.relevance}/${e.judge_scores.correctness}`}
                   {e.checks && (failed.length === 0 ? " · all checks pass" : ` · failed: ${failed.join(", ")}`)}
                 </span>

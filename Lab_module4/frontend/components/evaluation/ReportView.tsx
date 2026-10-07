@@ -36,6 +36,12 @@ export default function ReportView({ report }: { report: Report }) {
         {s.calls && ` · ${s.calls.real_calls} real AI calls, ${s.calls.cached_calls} from cache`}
       </p>
 
+      {s.skipped && s.skipped.length > 0 && (
+        <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-sm dark:border-amber-800 dark:bg-amber-950">
+          {s.skipped.length} question{s.skipped.length === 1 ? " was" : "s were"} skipped: their answers weren&apos;t in the
+          cache, and this server makes no real AI calls for evaluations. The scores cover the others.
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Card label={`Recall@${k}`} value={metric(r.recall)} hint="Share of the right code found" />
         <Card label="MRR" value={metric(r.mrr)} hint="How high the first right chunk ranks" />

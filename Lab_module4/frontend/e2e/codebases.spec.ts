@@ -6,7 +6,8 @@ import { PROD } from "./helpers";
 const folder = PROD
   ? path.resolve(__dirname, "../../../test_files/auction_checklist")
   : path.resolve(__dirname, "fixtures/mini-project");
-const name = PROD ? "auction-checklist" : "mini-project";
+// In production the test uses its own name, so it never touches (or deletes) a real upload.
+const name = PROD ? "e2e-auction-checklist" : "mini-project";
 
 test("upload a folder, browse its chunks, then delete it", async ({ page }) => {
   test.setTimeout(PROD ? 300_000 : 60_000);
@@ -15,6 +16,7 @@ test("upload a folder, browse its chunks, then delete it", async ({ page }) => {
   await expect(page.getByText(/files accepted/)).toBeVisible();
   await expect(page.getByLabel("Codebase name")).toHaveValue(PROD ? "auction-checklist" : "mini-project");
   if (!PROD) await expect(page.getByText(/\(\+1 in dependency or build folders\)/)).toBeVisible();
+  if (PROD) await page.getByLabel("Codebase name").fill(name);
   await page.getByRole("button", { name: "Index" }).click();
   await expect(page.getByText(new RegExp(`${name}: \\d+ files indexed`))).toBeVisible({ timeout: PROD ? 240_000 : 30_000 });
 
